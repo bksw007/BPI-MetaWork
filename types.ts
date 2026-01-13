@@ -40,9 +40,6 @@ export const PACKAGE_GROUPS = {
     "80X120X90 QTY",
     "80X120X65 QTY"
   ],
-  "Returnable Package": [
-    "RETURNABLE QTY"
-  ],
   "Boxes Package": [
     "42X46X68 QTY",
     "47X66X68 QTY",
@@ -52,6 +49,9 @@ export const PACKAGE_GROUPS = {
     "70X100X90 QTY",
     "27X27X22 QTY",
     "53X53X19 QTY"
+  ],
+  "Returnable Package": [
+    "RETURNABLE QTY"
   ],
   "Warp Package": [
     "WARP QTY",
