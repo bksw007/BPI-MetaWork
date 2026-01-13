@@ -10,11 +10,12 @@ import { Package, Truck, Calendar, Layers, Activity, Users } from 'lucide-react'
 
 interface DashboardProps {
   data: PackingRecord[];
+  isDarkMode: boolean;
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-const Dashboard: React.FC<DashboardProps> = ({ data }) => {
+const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
   const { stats, timelineData, packageData, shipmentChartData, modeChartData, groupStats, ratioStats } = useMemo(() => aggregateData(data), [data]);
 
   return (
@@ -27,6 +28,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           icon={Layers} 
           color="bg-blue-500" 
           subValue="Total pieces packed"
+          isDarkMode={isDarkMode}
         />
         <StatsCard 
           title="Packages Used" 
@@ -34,6 +36,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           icon={Package} 
           color="bg-emerald-500"
           subValue="Sum of all package columns"
+          isDarkMode={isDarkMode}
         />
         <StatsCard 
           title="Top Customer" 
@@ -41,35 +44,47 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           icon={Users} 
           color="bg-indigo-500"
           subValue="Highest volume"
+          isDarkMode={isDarkMode}
         />
         <StatsCard 
           title="Total Jobs (SI)" 
           value={stats.totalSI.toLocaleString()} 
           icon={Activity} 
           color="bg-amber-500"
+          isDarkMode={isDarkMode}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Daily Timeline */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+        <div className={`p-6 rounded-xl transition-all duration-300 ${
+           isDarkMode 
+             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(59,130,246,0.15)]' 
+             : 'bg-white shadow-sm border border-slate-100 shadow-blue-100/50'
+        } lg:col-span-2`}>
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-blue-500" />
             Packing Volume Timeline
           </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={timelineData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkMode ? '#334155' : '#e2e8f0'} />
                 <XAxis 
                   dataKey="date" 
-                  tick={{fontSize: 12}} 
+                  tick={{fontSize: 12, fill: isDarkMode ? '#94a3b8' : '#64748b'}} 
                   tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, {month: 'short', day:'numeric'})} 
-                  stroke="#94a3b8"
+                  stroke={isDarkMode ? '#475569' : '#94a3b8'}
                 />
-                <YAxis tick={{fontSize: 12}} stroke="#94a3b8" />
+                <YAxis tick={{fontSize: 12, fill: isDarkMode ? '#94a3b8' : '#64748b'}} stroke={isDarkMode ? '#475569' : '#94a3b8'} />
                 <Tooltip 
-                  contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+                  contentStyle={{
+                    backgroundColor: isDarkMode ? '#1e293b' : '#fff',
+                    borderColor: isDarkMode ? '#334155' : '#fff',
+                    color: isDarkMode ? '#fff' : '#000',
+                    borderRadius: '8px', 
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
                 />
                 <Legend />
                 <Line type="monotone" dataKey="qty" name="Products (QTY)" stroke="#3b82f6" strokeWidth={2} dot={false} />
@@ -80,7 +95,11 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
 
         {/* Mode Distribution */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <div className={`p-6 rounded-xl transition-all duration-300 ${
+           isDarkMode 
+             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(99,102,241,0.15)]' 
+             : 'bg-white shadow-sm border border-slate-100 shadow-indigo-100/50'
+        }`}>
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <Truck className="w-5 h-5 text-indigo-500" />
             Transport Mode
@@ -112,7 +131,11 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Shipment/Customers */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <div className={`p-6 rounded-xl transition-all duration-300 ${
+           isDarkMode 
+             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(59,130,246,0.15)]' 
+             : 'bg-white shadow-sm border border-slate-100 shadow-blue-100/50'
+        }`}>
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Top Customers by Volume</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -128,7 +151,11 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
         </div>
 
         {/* Package Dimensions Breakdown (Grouped) */}
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+        <div className={`p-6 rounded-xl transition-all duration-300 ${
+           isDarkMode 
+             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(16,185,129,0.15)]' 
+             : 'bg-white shadow-sm border border-slate-100 shadow-emerald-100/50'
+        }`}>
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Package Type Usage</h3>
           <div className="h-80 overflow-y-auto pr-2 custom-scrollbar space-y-6">
              {Object.entries(PACKAGE_GROUPS).map(([groupName, columns]) => {
@@ -176,7 +203,11 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       </div>
 
       {/* Ratio Analysis Section */}
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+      <div className={`p-6 rounded-xl transition-all duration-300 ${
+           isDarkMode 
+             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(245,158,11,0.15)]' 
+             : 'bg-white shadow-sm border border-slate-100 shadow-amber-100/50'
+        }`}>
         <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
            <Activity className="w-5 h-5 text-amber-500" />
            Ratio Analysis (Product Capacity)

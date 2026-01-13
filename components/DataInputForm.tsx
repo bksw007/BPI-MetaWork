@@ -7,6 +7,7 @@ interface DataInputFormProps {
   onCancel: () => void;
   existingCustomers?: string[];
   existingProducts?: string[];
+  isDarkMode?: boolean;
 }
 
 /**
@@ -20,10 +21,11 @@ interface CreatableSelectProps {
   options: string[];
   placeholder?: string;
   required?: boolean;
+  isDarkMode?: boolean;
 }
 
 const CreatableSelect: React.FC<CreatableSelectProps> = ({ 
-  label, name, value, onChange, options, placeholder, required 
+  label, name, value, onChange, options, placeholder, required, isDarkMode 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState<string[]>(options);
@@ -71,7 +73,11 @@ const CreatableSelect: React.FC<CreatableSelectProps> = ({
           onChange={onChange}
           onFocus={() => setIsOpen(true)}
           autoComplete="off"
-          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none pr-10"
+          className={`w-full px-4 py-3 border rounded-xl font-semibold transition-all outline-none pr-10 focus:ring-2 ${
+            isDarkMode 
+              ? 'bg-slate-900 border-slate-700 text-white focus:bg-slate-800 focus:ring-blue-500 placeholder-slate-500' 
+              : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:ring-blue-500'
+          }`}
         />
         <ChevronDown 
           className={`w-4 h-4 text-slate-400 absolute right-4 top-3.5 transition-transform duration-200 pointer-events-none ${isOpen ? 'rotate-180' : ''}`} 
@@ -80,13 +86,19 @@ const CreatableSelect: React.FC<CreatableSelectProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && filteredOptions.length > 0 && (
-        <div className="absolute z-20 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto custom-scrollbar animate-in fade-in zoom-in-95 duration-100">
+        <div className={`absolute z-20 w-full mt-1 border rounded-xl shadow-lg max-h-60 overflow-y-auto custom-scrollbar animate-in fade-in zoom-in-95 duration-100 ${
+           isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+        }`}>
            {filteredOptions.map((opt, idx) => (
              <button
                 key={`${opt}-${idx}`}
                 type="button"
                 onClick={() => handleSelect(opt)}
-                className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors"
+                className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${
+                  isDarkMode 
+                    ? 'text-slate-300 hover:bg-slate-700 hover:text-blue-400' 
+                    : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600'
+                }`}
              >
                {opt}
              </button>
@@ -101,7 +113,8 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
   onSave, 
   onCancel, 
   existingCustomers = [], 
-  existingProducts = [] 
+  existingProducts = [],
+  isDarkMode
 }) => {
   const [step, setStep] = useState<'edit' | 'review'>('edit');
   const [formData, setFormData] = useState<Partial<PackingRecord>>({
@@ -146,7 +159,7 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
   if (step === 'review') {
     return (
       <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+        <div className={`rounded-2xl shadow-lg border overflow-hidden ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
           <div className="bg-blue-600 p-6 text-white flex items-center justify-between">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-8 h-8" />
@@ -168,32 +181,32 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                 <div className="space-y-4">
                   <div className="flex justify-between border-b border-slate-100 pb-2">
                     <span className="text-slate-500 text-sm">Date</span>
-                    <span className="font-bold text-slate-900">{formData.Date}</span>
+                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{formData.Date}</span>
                   </div>
                   <div className="flex justify-between border-b border-slate-100 pb-2">
                     <span className="text-slate-500 text-sm">Customer</span>
-                    <span className="font-bold text-slate-900">{formData.Shipment}</span>
+                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{formData.Shipment}</span>
                   </div>
                   <div className="flex justify-between border-b border-slate-100 pb-2">
                     <span className="text-slate-500 text-sm">Product</span>
-                    <span className="font-bold text-slate-900">{formData.Product}</span>
+                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{formData.Product}</span>
                   </div>
                   <div className="flex justify-between border-b border-slate-100 pb-2">
                     <span className="text-slate-500 text-sm">Mode</span>
-                    <span className="font-bold text-slate-900">{formData.Mode}</span>
+                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{formData.Mode}</span>
                   </div>
                   <div className="flex justify-between border-b border-slate-100 pb-2">
                     <span className="text-slate-500 text-sm">SI QTY</span>
-                    <span className="font-bold text-slate-900">{formData["SI QTY"]}</span>
+                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{formData["SI QTY"]}</span>
                   </div>
                   <div className="flex justify-between border-b border-slate-100 pb-2">
                     <span className="text-slate-500 text-sm">Total QTY</span>
-                    <span className="font-black text-blue-700 text-lg">{formData.QTY?.toLocaleString()}</span>
+                    <span className={`font-black text-lg ${isDarkMode ? 'text-blue-400' : 'text-blue-700'}`}>{formData.QTY?.toLocaleString()}</span>
                   </div>
                   {formData.Remark && (
                      <div className="flex justify-between border-b border-slate-100 pb-2">
                        <span className="text-slate-500 text-sm">Remark</span>
-                       <span className="font-bold text-slate-900 truncate max-w-[200px]">{formData.Remark}</span>
+                       <span className={`font-bold truncate max-w-[200px] ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{formData.Remark}</span>
                      </div>
                   )}
                 </div>
@@ -207,9 +220,9 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
                   {PACKAGE_COLUMNS.filter(col => (formData[col] as number) > 0).map(col => (
-                    <div key={col} className="bg-slate-50 p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                    <div key={col} className={`p-3 rounded-lg border flex justify-between items-center ${isDarkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-slate-50 border-slate-200'}`}>
                       <span className="text-[10px] font-bold text-slate-500 uppercase truncate mr-2" title={col}>{col.replace(' QTY', '')}</span>
-                      <span className="font-black text-slate-900">{formData[col]}</span>
+                      <span className={`font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{formData[col]}</span>
                     </div>
                   ))}
                   {PACKAGE_COLUMNS.every(col => (formData[col] as number) === 0) && (
@@ -224,7 +237,9 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <button 
                 onClick={() => setStep('edit')}
-                className="flex-1 flex items-center justify-center gap-2 py-3 border border-slate-300 text-slate-700 rounded-xl font-bold hover:bg-slate-50 transition-colors"
+                className={`flex-1 flex items-center justify-center gap-2 py-3 border rounded-xl font-bold transition-colors ${
+                   isDarkMode ? 'border-slate-600 text-slate-300 hover:bg-slate-700' : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+                }`}
               >
                 <ArrowLeft className="w-5 h-5" />
                 Go Back to Edit
@@ -253,8 +268,8 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: General Info */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <h3 className="text-sm font-black text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-wide">
+            <div className={`p-6 rounded-2xl shadow-sm border ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+              <h3 className={`text-sm font-black mb-6 flex items-center gap-2 uppercase tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                 <Info className="w-4 h-4 text-blue-600" />
                 Shipment Details
               </h3>
@@ -266,7 +281,11 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                     <input 
                       type="date" name="Date" required
                       value={formData.Date} onChange={handleChange}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
+                      className={`w-full px-4 py-3 border rounded-xl font-semibold transition-all outline-none focus:ring-2 ${
+                        isDarkMode 
+                          ? 'bg-slate-900 border-slate-700 text-white focus:bg-slate-800 focus:ring-blue-500' 
+                          : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:ring-blue-500'
+                      }`}
                     />
                     <CalendarIcon className="w-4 h-4 text-slate-400 absolute right-4 top-3.5 pointer-events-none" />
                   </div>
@@ -280,6 +299,7 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                   options={existingCustomers}
                   placeholder="Select or enter customer"
                   required
+                  isDarkMode={isDarkMode}
                 />
 
                 <CreatableSelect 
@@ -290,6 +310,7 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                   options={existingProducts}
                   placeholder="Select or enter product"
                   required
+                  isDarkMode={isDarkMode}
                 />
 
                 <div className="grid grid-cols-2 gap-4">
@@ -300,6 +321,7 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                     onChange={handleChange as any}
                     options={modeOptions}
                     required
+                    isDarkMode={isDarkMode}
                   />
 
                   <div>
@@ -307,7 +329,11 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                     <input 
                       type="number" name="SI QTY" min="1" required
                       value={formData["SI QTY"]} onChange={handleChange}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
+                      className={`w-full px-4 py-3 border rounded-xl font-semibold transition-all outline-none focus:ring-2 ${
+                        isDarkMode 
+                          ? 'bg-slate-900 border-slate-700 text-white focus:bg-slate-800 focus:ring-blue-500' 
+                          : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:ring-blue-500'
+                      }`}
                     />
                   </div>
                 </div>
@@ -316,7 +342,11 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                   <input 
                     type="number" name="QTY" min="0" required
                     value={formData.QTY} onChange={handleChange}
-                    className="w-full px-4 py-4 bg-blue-50 border-2 border-blue-100 text-blue-800 text-xl font-black rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
+                    className={`w-full px-4 py-4 border-2 text-xl font-black rounded-2xl transition-all outline-none focus:ring-2 ${
+                       isDarkMode 
+                         ? 'bg-blue-900/20 border-blue-900/50 text-blue-400 focus:bg-slate-800 focus:ring-blue-500' 
+                         : 'bg-blue-50 border-blue-100 text-blue-800 focus:bg-white focus:ring-blue-500'
+                    }`}
                   />
                 </div>
                 
@@ -327,8 +357,12 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                       rows={2}
                       value={formData.Remark || ''}
                       onChange={handleChange}
-                      placeholder="Optional notes..."
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none resize-none text-sm"
+                       placeholder="Optional notes..."
+                      className={`w-full px-4 py-3 border rounded-xl font-medium transition-all outline-none resize-none text-sm focus:ring-2 ${
+                        isDarkMode 
+                          ? 'bg-slate-900 border-slate-700 text-white focus:bg-slate-800 focus:ring-blue-500 placeholder-slate-500' 
+                          : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:ring-blue-500'
+                      }`}
                    />
                 </div>
               </div>
@@ -337,9 +371,9 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
 
           {/* Right: Package Details */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div className={`p-6 rounded-2xl shadow-sm border ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-black text-slate-900 flex items-center gap-2 uppercase tracking-wide">
+                <h3 className={`text-sm font-black flex items-center gap-2 uppercase tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                   <Package className="w-4 h-4 text-emerald-600" />
                   Packaging Breakdown
                 </h3>
@@ -357,7 +391,11 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                         type="number" name={col} min="0"
                         value={formData[col]} onChange={handleChange}
                         placeholder="0"
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none text-sm"
+                        className={`w-full px-4 py-2.5 border rounded-xl font-bold transition-all outline-none text-sm focus:ring-2 ${
+                            isDarkMode 
+                              ? 'bg-slate-900 border-slate-700 text-white focus:bg-slate-800 focus:ring-emerald-500 placeholder-slate-600' 
+                              : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:ring-emerald-500'
+                        }`}
                       />
                       <span className="absolute right-3 top-2.5 text-[10px] text-slate-400 font-black group-focus-within:hidden">PCS</span>
                     </div>
@@ -365,8 +403,7 @@ const DataInputForm: React.FC<DataInputFormProps> = ({
                 ))}
               </div>
             </div>
-
-            <div className="flex items-center justify-end gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div className={`flex items-center justify-end gap-4 p-4 rounded-2xl border shadow-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
               <button 
                 type="button" onClick={onCancel}
                 className="px-6 py-3 text-slate-500 font-bold hover:text-red-500 transition-colors text-sm"

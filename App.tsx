@@ -268,15 +268,16 @@ const App: React.FC = () => {
         )}
 
         {view === 'dashboard' ? (
-          <Dashboard data={filteredData} />
+          <Dashboard data={filteredData} isDarkMode={isDarkMode} />
         ) : view === 'table' ? (
-          <DataTable data={filteredData} />
+          <DataTable data={filteredData} isDarkMode={isDarkMode} />
         ) : (
           <DataInputForm 
             onSave={handleAddRecord} 
             onCancel={() => setView('dashboard')} 
             existingCustomers={filterOptions.customers}
             existingProducts={filterOptions.products}
+            isDarkMode={isDarkMode}
           />
         )}
       </main>
