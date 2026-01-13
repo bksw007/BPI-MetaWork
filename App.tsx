@@ -51,7 +51,6 @@ const App: React.FC = () => {
   };
 
   const handleDataLoaded = (newData: PackingRecord[]) => {
-  const handleDataLoaded = (newData: PackingRecord[]) => {
     setData(newData);
     setView('dashboard');
     resetFilters();
