@@ -144,9 +144,9 @@ const App: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      <aside className="bg-white border-r border-slate-200 w-full md:w-64 flex-shrink-0 md:h-screen sticky top-0 z-10 flex flex-col">
-        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col md:flex-row transition-colors duration-300">
+      <aside className="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 w-full md:w-64 flex-shrink-0 md:h-screen sticky top-0 z-10 flex flex-col transition-colors duration-300">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
           <div className="bg-blue-600 p-2 rounded-lg">
              <PackageCheck className="text-white w-6 h-6" />
           </div>
