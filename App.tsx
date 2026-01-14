@@ -7,7 +7,8 @@ import DataUploader from './components/DataUploader';
 import DataTable from './components/DataTable';
 import DataInputForm from './components/DataInputForm';
 import SuccessModal from './components/SuccessModal';
-import { LayoutDashboard, Table, Upload, PackageCheck, Filter, X, Calendar, User, Package, Download, PlusCircle } from 'lucide-react';
+import LoadingModal from './components/LoadingModal';
+import { LayoutDashboard, Table, Upload, PackageCheck, Filter, X, Calendar, User, Package, Download, PlusCircle, RefreshCw } from 'lucide-react';
 
 const App: React.FC = () => {
   const [data, setData] = useState<PackingRecord[]>([]);
@@ -25,10 +26,11 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  const [selectedYear, setSelectedYear] = useState<string>('All');
+  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedMonth, setSelectedMonth] = useState<string>('All');
   const [selectedCustomer, setSelectedCustomer] = useState<string>('All');
   const [selectedProduct, setSelectedProduct] = useState<string>('All');
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
     loadData();
@@ -50,6 +52,7 @@ const App: React.FC = () => {
          setData([]);
        }
     }
+    setLastUpdated(new Date());
     setIsLoading(false);
   };
 
@@ -283,10 +286,20 @@ const App: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-              <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-amber-500' : 'bg-emerald-500'} animate-pulse`}></div>
-              {isLoading ? 'Syncing...' : 'Last update: '}
-              {!isLoading && <span className="font-bold text-slate-700 dark:text-slate-200">{new Date().toLocaleDateString('en-GB')}</span>}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-amber-500' : 'bg-emerald-500'} animate-pulse`}></div>
+                {isLoading ? 'Syncing...' : 'Last update: '}
+                {!isLoading && lastUpdated && <span className="font-bold text-slate-700 dark:text-slate-200">{lastUpdated.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>}
+            </div>
+            <button
+              onClick={loadData}
+              disabled={isLoading}
+              className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
           </div>
         </header>
 
@@ -364,6 +377,12 @@ const App: React.FC = () => {
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         message={successMessage}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* Loading Modal */}
+      <LoadingModal 
+        isOpen={isLoading}
         isDarkMode={isDarkMode}
       />
     </div>
