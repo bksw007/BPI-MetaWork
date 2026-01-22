@@ -12,8 +12,8 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden drop-shadow-lg">
-                <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain" />
+              <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
+                <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain drop-shadow-md" />
               </div>
               <h3 className="text-2xl font-bold">BPI MetaWork</h3>
             </div>

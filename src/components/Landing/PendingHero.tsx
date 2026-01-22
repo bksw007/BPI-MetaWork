@@ -81,8 +81,8 @@ const PendingHero: React.FC = () => {
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-4xl mx-auto animate-fade-in">
           {/* Icon */}
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl mb-6 overflow-hidden drop-shadow-xl">
-             <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain" />
+          <div className="inline-flex items-center justify-center w-24 h-24 mb-6">
+             <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
 
           {/* Title */}

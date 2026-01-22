@@ -243,8 +243,8 @@ const DashboardPage: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/home" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-lg shadow-md flex items-center justify-center overflow-hidden">
-                <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-cover" />
+              <div className="w-8 h-8 flex items-center justify-center overflow-hidden">
+                <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-cover drop-shadow-md" />
               </div>
               <h1 className="text-xl font-bold text-slate-800 dark:text-white">BPI MetaWork</h1>
             </Link>

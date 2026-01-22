@@ -28,8 +28,8 @@ const HomeHero: React.FC = () => {
           <div className="flex justify-between items-center">
             {/* Left: Logo & Brand */}
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm flex items-center justify-center overflow-hidden">
-                <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-cover" />
+              <div className="w-8 h-8 flex items-center justify-center overflow-hidden">
+                <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-cover drop-shadow-md" />
               </div>
               <span className="font-bold text-slate-700 text-lg hidden sm:block">BPI MetaWork</span>
             </div>

@@ -99,8 +99,8 @@ const LoginPage: React.FC = () => {
       <div className="relative z-10 w-full max-w-sm p-6 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 animate-slide-up mx-4">
         {/* Header */}
         <div className="flex flex-col items-center mb-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-3 overflow-hidden drop-shadow-lg">
-            <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain" />
+          <div className="inline-flex items-center justify-center w-24 h-24 mb-3">
+            <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain drop-shadow-lg" />
           </div>
           <h1 className="text-2xl font-black text-slate-800 tracking-tight">{isRegistering ? 'Create Account' : 'Welcome'}</h1>
           <p className="text-slate-500 text-sm font-medium">BPI MetaWork</p>
