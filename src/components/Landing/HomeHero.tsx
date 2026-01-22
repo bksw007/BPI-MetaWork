@@ -13,7 +13,7 @@ const HomeHero: React.FC = () => {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pb-20">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-pastel opacity-60"></div>
       
@@ -90,7 +90,7 @@ const HomeHero: React.FC = () => {
           </p>
 
           {/* Stats preview with icons */}
-          <div className="mt-8 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+          <div className="mt-16 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
             <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md border border-lavender-200/50">
               <Kanban className="w-8 h-8 text-lavender-500 mx-auto mb-2" />
               <div className="text-sm font-semibold text-slate-700">Smart Board</div>
