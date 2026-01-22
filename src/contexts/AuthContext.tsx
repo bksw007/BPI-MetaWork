@@ -16,6 +16,7 @@ import {
   setDoc, 
   Timestamp 
 } from 'firebase/firestore';
+import app, { db } from '../config/firebase'; // Ensure app is initialized
 
 // Types
 export interface UserProfile {
@@ -61,8 +62,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const auth = getAuth();
-  const db = getFirestore();
+  const auth = getAuth(app);
+  // const db = getFirestore(); // Use imported db instead
 
   // Fetch or create user profile from Firestore
   const fetchUserProfile = async (firebaseUser: FirebaseUser): Promise<UserProfile | null> => {
