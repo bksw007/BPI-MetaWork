@@ -218,7 +218,7 @@ const AdminProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gradient-pastel">
+    <div className="h-screen flex flex-col overflow-hidden bg-gradient-sage-sand">
       {/* Navigation Header */}
       <header className="bg-white/50 backdrop-blur-md border-b border-white/30 z-10">
         <div className="container mx-auto px-6 py-3 flex items-center justify-between">
