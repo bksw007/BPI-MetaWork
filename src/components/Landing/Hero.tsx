@@ -22,6 +22,22 @@ const Hero: React.FC = () => {
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-peach-200/30 rounded-full blur-3xl"></div>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-mint-200/20 rounded-full blur-3xl"></div>
 
+      {/* Floating Pending Status Badge - Top Left */}
+      {isAuthenticated && !isApproved && (
+        <div className="fixed top-20 left-4 z-50 animate-fade-in-down">
+          <div className="flex items-center gap-2 px-4 py-3 bg-white/90 backdrop-blur-md border border-amber-200 shadow-xl rounded-2xl ring-1 ring-amber-100">
+            <div className="relative">
+              <Clock className="w-5 h-5 text-amber-500" />
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">สถานะ</span>
+              <span className="text-sm font-bold text-amber-600 leading-none">รอการอนุมัติ</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation Header */}
       <div className="absolute top-0 left-0 right-0 z-20 p-6">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,12 +45,9 @@ const Hero: React.FC = () => {
             {/* Empty placeholder for flex layout */}
             <div></div>
 
-            {/* Center: Pending Status Badge */}
+            {/* Center: Pending Status Badge (Moved to fixed top-left) */}
             {isAuthenticated && !isApproved && (
-              <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-amber-100 border border-amber-300 rounded-full">
-                <Clock className="w-4 h-4 text-amber-600 animate-pulse" />
-                <span className="text-sm font-semibold text-amber-700">รอการอนุมัติ</span>
-              </div>
+               <></>
             )}
             
             {/* Auth Buttons */}
@@ -52,11 +65,8 @@ const Hero: React.FC = () => {
                       เข้าสู่ระบบ
                     </button>
                   ) : (
-                    // Pending user - show mobile badge
-                    <div className="sm:hidden flex items-center gap-1 px-3 py-1.5 bg-amber-100 border border-amber-300 rounded-full">
-                      <Clock className="w-3 h-3 text-amber-600 animate-pulse" />
-                      <span className="text-xs font-semibold text-amber-700">รออนุมัติ</span>
-                    </div>
+                    // Pending user - show mobile badge (removed, moved to fixed)
+                    <></>
                   )}
                   <button
                     onClick={handleLogout}
