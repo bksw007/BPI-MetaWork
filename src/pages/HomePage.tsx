@@ -3,7 +3,7 @@ import HomeHero from '../components/Landing/HomeHero';
 import Features from '../components/Landing/Features';
 import DashboardPreview from '../components/Landing/DashboardPreview';
 import StatsShowcase from '../components/Landing/StatsShowcase';
-import Footer from '../components/Landing/Footer';
+import HomeFooter from '../components/Landing/HomeFooter';
 
 const HomePage: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ const HomePage: React.FC = () => {
       <Features />
       <DashboardPreview />
       <StatsShowcase />
-      <Footer />
+      <HomeFooter />
     </div>
   );
 };

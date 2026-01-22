@@ -47,13 +47,8 @@ const PendingHero: React.FC = () => {
             {/* Auth Buttons */}
             <div className="flex items-center gap-3">
               {isAuthenticated ? (
-                // Logged in (Pending)
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50 font-medium transition-all shadow-sm"
-                >
-                  <span className="hidden sm:inline">ออกจากระบบ</span>
-                </button>
+                // Logged in (Pending) - Status badge handles info, no button needed here
+                <></>
               ) : (
                 // Not logged in (Guest)
                 <>

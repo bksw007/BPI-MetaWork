@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Github, Mail, ExternalLink } from 'lucide-react';
+import { Github, Mail, ExternalLink } from 'lucide-react';
 
-const Footer: React.FC = () => {
+const HomeFooter: React.FC = () => {
   const navigate = useNavigate();
 
   return (
@@ -110,4 +110,4 @@ const Footer: React.FC = () => {
   );
 };
 
-export default Footer;
+export default HomeFooter;
