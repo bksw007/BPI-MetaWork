@@ -23,7 +23,7 @@ export interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
-  photoURL?: string;
+  photoURL?: string | null;
   role: 'admin' | 'user';
   status: 'pending' | 'approved';
   createdAt: Date;
@@ -89,7 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           uid: firebaseUser.uid,
           email: firebaseUser.email || '',
           displayName: firebaseUser.displayName || 'User',
-          photoURL: firebaseUser.photoURL || undefined,
+          photoURL: firebaseUser.photoURL || null, // Fix: Firestore doesn't accept undefined
           role: 'user',
           status: 'pending',
           createdAt: new Date(),
