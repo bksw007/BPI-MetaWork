@@ -5,6 +5,8 @@ import {
   GoogleAuthProvider, 
   signOut, 
   onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   User as FirebaseUser
 } from 'firebase/auth';
 import { 
@@ -35,6 +37,8 @@ interface AuthContextType {
   isApproved: boolean;
   isAdmin: boolean;
   loginWithGoogle: () => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  signupWithEmail: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -136,6 +140,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Email Sign In
+  const loginWithEmail = async (email: string, password: string) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.error('Email Login Error:', error);
+      throw error;
+    }
+  };
+
+  // Email Sign Up
+  const signupWithEmail = async (email: string, password: string) => {
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Create profile immediately
+      await fetchUserProfile(result.user);
+    } catch (error) {
+      console.error('Email Signup Error:', error);
+      throw error;
+    }
+  };
+
   // Sign Out
   const logout = async () => {
     try {
@@ -156,6 +183,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isApproved: userProfile?.status === 'approved',
     isAdmin: userProfile?.role === 'admin',
     loginWithGoogle,
+    loginWithEmail,
+    signupWithEmail,
     logout,
   };
 

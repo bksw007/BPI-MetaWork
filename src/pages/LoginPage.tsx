@@ -5,9 +5,10 @@ import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { loginWithGoogle, isLoading } = useAuth();
+  const { loginWithGoogle, loginWithEmail, signupWithEmail, isLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -27,29 +28,40 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleRegister = async () => {
+  const handleRegister = () => {
+    setIsRegistering(!isRegistering);
     setError(null);
-    setIsSigningIn(true);
-    try {
-      await loginWithGoogle();
-      setShowApprovalModal(true);
-    } catch (err: any) {
-      console.error('Registration error:', err);
-      setError(err.message || 'เกิดข้อผิดพลาดในการลงทะเบียน');
-    } finally {
-      setIsSigningIn(false);
-    }
   };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsSigningIn(true);
-    // TODO: Implement email/password login
-    setTimeout(() => {
+
+    try {
+      if (isRegistering) {
+        await signupWithEmail(email, password);
+        setShowApprovalModal(true);
+      } else {
+        await loginWithEmail(email, password);
+        // ProtectedRoute will handle navigation
+      }
+    } catch (err: any) {
+      console.error(isRegistering ? 'Registration error:' : 'Login error:', err);
+      let errorMessage = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+      
+      if (err.code === 'auth/invalid-credential') {
+        errorMessage = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      } else if (err.code === 'auth/email-already-in-use') {
+        errorMessage = 'อีเมลนี้ถูกใช้งานแล้ว';
+      } else if (err.code === 'auth/weak-password') {
+        errorMessage = 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
+      }
+      
+      setError(errorMessage);
+    } finally {
       setIsSigningIn(false);
-      setError('ระบบ email/password ยังไม่เปิดใช้งาน กรุณาใช้ Google Sign-In');
-    }, 1000);
+    }
   };
 
   if (isLoading) {
@@ -89,7 +101,7 @@ const LoginPage: React.FC = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-3 overflow-hidden drop-shadow-lg">
             <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-2xl font-black text-slate-800 tracking-tight">Welcome</h1>
+          <h1 className="text-2xl font-black text-slate-800 tracking-tight">{isRegistering ? 'Create Account' : 'Welcome'}</h1>
           <p className="text-slate-500 text-sm font-medium">BPI MetaWork</p>
         </div>
 
@@ -142,7 +154,7 @@ const LoginPage: React.FC = () => {
             disabled={isSigningIn}
             className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           >
-            {isSigningIn ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            {isSigningIn ? 'กำลังดำเนินการ...' : (isRegistering ? 'ลงทะเบียน' : 'เข้าสู่ระบบ')}
           </button>
         </form>
 
@@ -179,7 +191,7 @@ const LoginPage: React.FC = () => {
             disabled={isSigningIn}
             className="text-lavender-600 hover:text-lavender-700 font-medium text-sm transition-colors disabled:opacity-50"
           >
-            ยังไม่มีบัญชี? <span className="font-bold">ลงทะเบียน</span>
+            {isRegistering ? 'มีบัญชีอยู่แล้ว?' : 'ยังไม่มีบัญชี?'} <span className="font-bold">{isRegistering ? 'เข้าสู่ระบบ' : 'ลงทะเบียน'}</span>
           </button>
         </div>
 
