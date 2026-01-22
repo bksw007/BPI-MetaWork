@@ -1,4 +1,4 @@
-# Packing Report - Professional Logistics Tracking
+# BPI-MetaWork - Professional Logistics Tracking
 
 ระบบจัดการและติดตามการแพ็คสินค้าอย่างมืออาชีพ พร้อมการวิเคราะห์ข้อมูลแบบเรียลไทม์
 
@@ -34,7 +34,7 @@
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd packing-report
+cd BPI-MetaWork
 ```
 
 2. Install dependencies:
@@ -102,7 +102,7 @@ The app will automatically deploy on every push to main branch.
 ## Project Structure
 
 ```
-packing-report/
+BPI-MetaWork/
 ├── src/
 │   ├── components/
 │   │   ├── Landing/        # Landing page components

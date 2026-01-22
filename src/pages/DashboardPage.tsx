@@ -242,11 +242,11 @@ const DashboardPage: React.FC = () => {
       <header className="bg-white/80 backdrop-blur-sm border-b border-lavender-200/50 dark:bg-slate-800/80 dark:border-slate-700 sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className="bg-lavender-500 p-2 rounded-lg">
-                <PackageCheck className="text-white w-6 h-6" />
+            <Link to="/home" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-lg shadow-md flex items-center justify-center overflow-hidden">
+                <img src="/concept 1.png" alt="BPI MetaWork" className="w-full h-full object-cover" />
               </div>
-              <h1 className="text-xl font-bold text-slate-800 dark:text-white">Packing Report</h1>
+              <h1 className="text-xl font-bold text-slate-800 dark:text-white">BPI MetaWork</h1>
             </Link>
             
             <nav className="flex items-center gap-2">

@@ -12,10 +12,10 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="bg-lavender-500 p-2 rounded-lg">
-                <Package className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden drop-shadow-lg">
+                <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain" />
               </div>
-              <h3 className="text-2xl font-bold">Packing Report</h3>
+              <h3 className="text-2xl font-bold">BPI MetaWork</h3>
             </div>
             <p className="text-slate-300 mb-4 max-w-md">
               ระบบจัดการและติดตามการแพ็คสินค้าอย่างมืออาชีพ 
