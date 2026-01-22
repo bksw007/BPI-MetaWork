@@ -8,6 +8,7 @@ import LoginPage from './src/pages/LoginPage';
 import HomePage from './src/pages/HomePage';
 import PendingPage from './src/pages/PendingPage';
 import UserProfilePage from './src/pages/UserProfilePage';
+import AdminProfilePage from './src/pages/AdminProfilePage';
 import DashboardPage from './src/pages/DashboardPage';
 import FirebaseTest from './src/components/FirebaseTest';
 
@@ -42,6 +43,11 @@ const App: React.FC = () => {
         <Route path="/profile" element={
           <ProtectedRoute>
             <UserProfilePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminProfilePage />
           </ProtectedRoute>
         } />
 
