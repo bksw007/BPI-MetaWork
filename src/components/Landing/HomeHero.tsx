@@ -15,7 +15,7 @@ const HomeHero: React.FC = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pb-20">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-pastel opacity-60"></div>
+      <div className="absolute inset-0 bg-gradient-fresh opacity-90"></div>
       
       {/* Decorative circles */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-lavender-200/30 rounded-full blur-3xl"></div>
