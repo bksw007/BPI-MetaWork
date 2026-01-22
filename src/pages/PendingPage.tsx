@@ -1,14 +1,14 @@
 import React from 'react';
-import Hero from '../components/Landing/Hero';
+import PendingHero from '../components/Landing/PendingHero';
 import Features from '../components/Landing/Features';
 import DashboardPreview from '../components/Landing/DashboardPreview';
 import StatsShowcase from '../components/Landing/StatsShowcase';
 import Footer from '../components/Landing/Footer';
 
-const LandingPage: React.FC = () => {
+const PendingPage: React.FC = () => {
   return (
     <div className="min-h-screen">
-      <Hero />
+      <PendingHero />
       <Features />
       <DashboardPreview />
       <StatsShowcase />
@@ -17,4 +17,4 @@ const LandingPage: React.FC = () => {
   );
 };
 
-export default LandingPage;
+export default PendingPage;

@@ -5,7 +5,8 @@ import { ProtectedRoute, PublicRoute } from './src/components/ProtectedRoute';
 
 // Pages
 import LoginPage from './src/pages/LoginPage';
-import LandingPage from './src/pages/LandingPage';
+import HomePage from './src/pages/HomePage';
+import PendingPage from './src/pages/PendingPage';
 import UserProfilePage from './src/pages/UserProfilePage';
 import DashboardPage from './src/pages/DashboardPage';
 import FirebaseTest from './src/components/FirebaseTest';
@@ -14,11 +15,11 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <Routes>
-        {/* Root Route - Redirect to landing */}
+        {/* Root Route - Redirect to pending */}
         <Route path="/" element={<Navigate to="/pending" replace />} />
 
-        {/* Public Landing Page - accessible to everyone including pending users */}
-        <Route path="/pending" element={<LandingPage />} />
+        {/* Public Landing Page (Pending) - accessible to everyone */}
+        <Route path="/pending" element={<PendingPage />} />
 
         {/* Login Page - redirect if already logged in */}
         <Route path="/login" element={
@@ -30,7 +31,7 @@ const App: React.FC = () => {
         {/* Protected Routes (Approved Users Only) */}
         <Route path="/home" element={
           <ProtectedRoute>
-            <LandingPage />
+            <HomePage />
           </ProtectedRoute>
         } />
         <Route path="/dashboard" element={

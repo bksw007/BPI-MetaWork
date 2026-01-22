@@ -1,15 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Package, BarChart3, LogIn, UserPlus, Clock, LogOut, Home, Kanban, ClipboardList, FileBarChart } from 'lucide-react';
+import { LogIn, UserPlus, Clock, Kanban, ClipboardList, FileBarChart } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
-const Hero: React.FC = () => {
+const PendingHero: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, isApproved, userProfile, logout } = useAuth();
+  const { isAuthenticated, isApproved, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
-    navigate('/pending');
   };
 
   return (
@@ -22,7 +21,7 @@ const Hero: React.FC = () => {
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-peach-200/30 rounded-full blur-3xl"></div>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-mint-200/20 rounded-full blur-3xl"></div>
 
-      {/* Floating Pending Status Badge - Top Left */}
+      {/* Fixed Pending Status Badge */}
       {isAuthenticated && !isApproved && (
         <div className="fixed top-20 left-4 z-50 animate-fade-in-down">
           <div className="flex items-center gap-2 px-4 py-3 bg-white/90 backdrop-blur-md border border-amber-200 shadow-xl rounded-2xl ring-1 ring-amber-100">
@@ -42,42 +41,21 @@ const Hero: React.FC = () => {
       <div className="absolute top-0 left-0 right-0 z-20 p-6">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            {/* Empty placeholder for flex layout */}
+            {/* Empty LEFT placeholder */}
             <div></div>
 
-            {/* Center: Pending Status Badge (Moved to fixed top-left) */}
-            {isAuthenticated && !isApproved && (
-               <></>
-            )}
-            
             {/* Auth Buttons */}
             <div className="flex items-center gap-3">
               {isAuthenticated ? (
-                // Logged in user
-                <>
-                  {isApproved ? (
-                    // Approved user
-                    <button
-                      onClick={() => navigate('/home')}
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-lavender-500 to-indigo-500 text-white rounded-lg hover:from-lavender-600 hover:to-indigo-600 transition-all font-medium"
-                    >
-                      <Home className="w-4 h-4" />
-                      เข้าสู่ระบบ
-                    </button>
-                  ) : (
-                    // Pending user - show mobile badge (removed, moved to fixed)
-                    <></>
-                  )}
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 font-medium transition-all shadow-sm"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>ออกจากระบบ</span>
-                  </button>
-                </>
+                // Logged in (Pending)
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50 font-medium transition-all shadow-sm"
+                >
+                  <span className="hidden sm:inline">ออกจากระบบ</span>
+                </button>
               ) : (
-                // Not logged in
+                // Not logged in (Guest)
                 <>
                   <button
                     onClick={() => navigate('/login')}
@@ -87,7 +65,7 @@ const Hero: React.FC = () => {
                     Log In
                   </button>
                   <button
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate('/login?mode=signup')}
                     className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
                   >
                     <UserPlus className="w-4 h-4" />
@@ -104,7 +82,7 @@ const Hero: React.FC = () => {
         <div className="max-w-4xl mx-auto animate-fade-in">
           {/* Icon */}
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl mb-6 overflow-hidden drop-shadow-xl">
-            <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain" />
+             <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-contain" />
           </div>
 
           {/* Title */}
@@ -144,5 +122,4 @@ const Hero: React.FC = () => {
   );
 };
 
-export default Hero;
-
+export default PendingHero;
