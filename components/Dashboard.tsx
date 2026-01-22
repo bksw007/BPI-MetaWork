@@ -13,7 +13,7 @@ interface DashboardProps {
   isDarkMode: boolean;
 }
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+const COLORS = ['#A88AFF', '#FFB3BA', '#6EE7B7', '#FFD89B', '#F4C2C2', '#D4E8F5'];
 
 const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
   const { stats, timelineData, packageData, shipmentChartData, modeChartData, groupStats, ratioStats } = useMemo(() => aggregateData(data), [data]);
@@ -57,13 +57,13 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Daily Timeline */}
-        <div className={`p-6 rounded-xl transition-all duration-300 ${
+        <div className={`card-pastel p-6 transition-all duration-300 ${
            isDarkMode 
-             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(59,130,246,0.15)]' 
-             : 'bg-white shadow-sm border border-slate-100 shadow-blue-100/50'
+             ? 'bg-slate-800/80 backdrop-blur-sm border-lavender-200/30 shadow-[0_0_15px_rgba(232,213,255,0.15)]' 
+             : 'shadow-powder-100/50'
         } lg:col-span-2`}>
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-blue-500" />
+            <Calendar className="w-5 h-5 text-powder-500" />
             Packing Volume Timeline
           </h3>
           <div className="h-72">
@@ -87,21 +87,21 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
                   }}
                 />
                 <Legend />
-                <Line type="monotone" dataKey="qty" name="Products (QTY)" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="packages" name="Packages Used" stroke="#10b981" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="qty" name="Products (QTY)" stroke="#A88AFF" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="packages" name="Packages Used" stroke="#6EE7B7" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Mode Distribution */}
-        <div className={`p-6 rounded-xl transition-all duration-300 ${
+        <div className={`card-pastel p-6 transition-all duration-300 ${
            isDarkMode 
-             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(99,102,241,0.15)]' 
-             : 'bg-white shadow-sm border border-slate-100 shadow-indigo-100/50'
+             ? 'bg-slate-800/80 backdrop-blur-sm border-lavender-200/30 shadow-[0_0_15px_rgba(232,213,255,0.15)]' 
+             : 'shadow-lavender-100/50'
         }`}>
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-            <Truck className="w-5 h-5 text-indigo-500" />
+            <Truck className="w-5 h-5 text-lavender-500" />
             Transport Mode
           </h3>
           <div className="h-72 flex flex-col items-center justify-center">
@@ -131,13 +131,13 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Shipment/Customers (35% width approx = 1 of 3 cols) */}
-        <div className={`p-6 rounded-xl lg:col-span-1 transition-all duration-300 ${
+        <div className={`card-pastel p-6 lg:col-span-1 transition-all duration-300 ${
            isDarkMode 
-             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(59,130,246,0.15)]' 
-             : 'bg-white shadow-sm border border-slate-100 shadow-blue-100/50'
+             ? 'bg-slate-800/80 backdrop-blur-sm border-lavender-200/30 shadow-[0_0_15px_rgba(232,213,255,0.15)]' 
+             : 'shadow-powder-100/50'
         }`}>
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-            <BarChart2 className="w-5 h-5 text-blue-500" />
+            <BarChart2 className="w-5 h-5 text-powder-500" />
             Top Customers
           </h3>
           <div className="h-96">
@@ -162,20 +162,20 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
                     fontSize: '12px'
                   }}
                 />
-                <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={16} />
+                <Bar dataKey="value" fill="#A88AFF" radius={[0, 4, 4, 0]} barSize={16} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Package Dimensions Breakdown (Grouped) (65% width approx = 2 of 3 cols) */}
-        <div className={`p-6 rounded-xl lg:col-span-2 transition-all duration-300 ${
+        <div className={`card-pastel p-6 lg:col-span-2 transition-all duration-300 ${
            isDarkMode 
-             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(16,185,129,0.15)]' 
-             : 'bg-white shadow-sm border border-slate-100 shadow-emerald-100/50'
+             ? 'bg-slate-800/80 backdrop-blur-sm border-lavender-200/30 shadow-[0_0_15px_rgba(224,247,233,0.15)]' 
+             : 'shadow-mint-100/50'
         }`}>
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-            <Box className="w-5 h-5 text-emerald-500" />
+            <Box className="w-5 h-5 text-mint-500" />
             Package Type Usage
           </h3>
           <div className="h-96 overflow-y-auto pr-2 custom-scrollbar grid grid-cols-1 md:grid-cols-2 gap-6 items-start content-start">
@@ -187,7 +187,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
                 if (groupPackages.length === 0) return null;
 
                 return (
-                  <div key={groupName} className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600 h-full">
+                  <div key={groupName} className="bg-lavender-50/50 dark:bg-slate-700/50 p-4 rounded-xl border border-lavender-200/50 dark:border-slate-600 h-full">
                      <div className="flex justify-between items-center mb-3">
                         <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">{groupName}</h4>
                         <span className="text-xs font-black px-2 py-1 bg-white dark:bg-slate-600 rounded text-slate-500 dark:text-slate-300">
@@ -202,7 +202,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
                            </div>
                            <div className="flex-1 mx-3 h-2 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
                              <div 
-                               className="h-full bg-emerald-500 rounded-full group-hover:bg-emerald-400 transition-colors"
+                               className="h-full bg-mint-500 rounded-full group-hover:bg-mint-400 transition-colors"
                                style={{ width: `${(pkg.value / Math.max(...packageData.map(p => p.value))) * 100}%` }}
                              />
                            </div>
@@ -224,13 +224,13 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
       </div>
 
       {/* Ratio Analysis Section */}
-      <div className={`p-6 rounded-xl transition-all duration-300 ${
+      <div className={`card-pastel p-6 transition-all duration-300 ${
            isDarkMode 
-             ? 'bg-slate-800 border border-slate-700 shadow-[0_0_15px_rgba(245,158,11,0.15)]' 
-             : 'bg-white shadow-sm border border-slate-100 shadow-amber-100/50'
+             ? 'bg-slate-800/80 backdrop-blur-sm border-lavender-200/30 shadow-[0_0_15px_rgba(255,216,155,0.15)]' 
+             : 'shadow-golden-100/50'
         }`}>
         <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-           <Activity className="w-5 h-5 text-amber-500" />
+           <Activity className="w-5 h-5 text-golden-500" />
            Ratio Analysis (Product Capacity)
         </h3>
         
@@ -240,7 +240,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
               if (!stat || stat.used === 0) return null;
 
               return (
-                 <div key={groupName} className="bg-slate-50 dark:bg-slate-700/30 p-5 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col justify-between hover:shadow-md transition-shadow">
+                 <div key={groupName} className="bg-peach-50/50 dark:bg-slate-700/30 p-5 rounded-2xl border border-peach-200/50 dark:border-slate-600 flex flex-col justify-between hover:shadow-md transition-shadow">
                     <div>
                       <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">{groupName}</h4>
                       <div className="flex items-baseline gap-1 mt-1">
@@ -255,7 +255,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
                           <span className="font-bold text-slate-700 dark:text-slate-300">{stat.used.toLocaleString()}</span>
                        </div>
                        <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full mt-2">
-                          <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: '100%' }}></div>
+                          <div className="bg-golden-400 h-1.5 rounded-full" style={{ width: '100%' }}></div>
                        </div>
                        <p className="mt-2 text-[10px] text-slate-400 italic text-right">
                           Based on defined package ratios

@@ -25,7 +25,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
         }`}
       >
         {/* Gradient Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-center">
+        <div className="bg-gradient-to-r from-lavender-400 to-lavender-500 p-6 text-center">
           <div className="w-16 h-16 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-3">
             <RefreshCw className="w-8 h-8 text-white animate-spin" />
           </div>
@@ -35,7 +35,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
         {/* Content */}
         <div className="p-6 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Database className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+            <Database className={`w-5 h-5 ${isDarkMode ? 'text-lavender-400' : 'text-lavender-600'}`} />
             <p className={`text-base ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
               {message}
             </p>
@@ -43,13 +43,13 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
           
           {/* Loading Dots */}
           <div className="flex justify-center gap-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="w-2 h-2 bg-lavender-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 bg-lavender-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-2 bg-lavender-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
           
           <p className={`mt-4 text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-            Fetching from Google Sheets...
+            Syncing with Firebase...
           </p>
         </div>
       </div>

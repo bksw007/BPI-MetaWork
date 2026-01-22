@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase Batch Import</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .file-input {
+        margin: 20px 0;
+      }
+      .progress {
+        margin: 20px 0;
+      }
+      .log {
+        background: #f5f5f5;
+        padding: 10px;
+        height: 200px;
+        overflow-y: scroll;
+        font-family: monospace;
+      }
+      button {
+        padding: 10px 20px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Firebase Batch Import Tool (Enhanced)</h1>
+      <p style="color: #666; margin-bottom: 20px">
+        Supports up to 2500+ records per import with optimized batching
+      </p>
+
+      <div class="file-input">
+        <label for="csvFile">Select CSV File:</label>
+        <input type="file" id="csvFile" accept=".csv,.json" />
+        <div style="margin-top: 10px; font-size: 12px; color: #666">
+          <strong>Expected format:</strong> dd-mm-yyyy dates<br />
+          <strong>Max size:</strong> ~2500 records per file<br />
+          <strong>Batch size:</strong> 50 records (auto-optimized)
+        </div>
+      </div>
+
+      <div class="progress">
+        <button id="importBtn">Start Import</button>
+        <div id="progressBar" style="display: none">
+          <progress id="progress" value="0" max="100"></progress>
+          <span id="progressText">0%</span>
+        </div>
+        <div
+          id="eta"
+          style="display: none; font-size: 12px; color: #666; margin-top: 5px"
+        >
+          ETA: <span id="etaTime">Calculating...</span>
+        </div>
+      </div>
+
+      <div class="log">
+        <div id="log"></div>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+      // Firebase config
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "packing-report-main.firebaseapp.com",
+        projectId: "packing-report-main",
+        storageBucket: "packing-report-main.firebasestorage.app",
+        messagingSenderId: "469899743055",
+        appId: "1:469899743055:web:d7020fd97511b14d9c7f3a",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      let importData = [];
+      let isImporting = false;
+      let importStartTime = 0;
+
+      function log(message) {
+        const logDiv = document.getElementById("log");
+        const timestamp = new Date().toLocaleTimeString();
+        logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+      }
+
+      function updateETA(currentBatch, totalBatches, startTime) {
+        const elapsed = Date.now() - startTime;
+        const avgTimePerBatch = elapsed / currentBatch;
+        const remainingBatches = totalBatches - currentBatch;
+        const eta = remainingBatches * avgTimePerBatch;
+
+        const etaMinutes = Math.floor(eta / 60000);
+        const etaSeconds = Math.floor((eta % 60000) / 1000);
+
+        document.getElementById("etaTime").textContent =
+          etaMinutes > 0 ? `${etaMinutes}m ${etaSeconds}s` : `${etaSeconds}s`;
+      }
+
+      function parseCSV(text) {
+        const lines = text.split("\n");
+        const headers = lines[0]
+          .split(",")
+          .map((h) => h.trim().replace(/"/g, ""));
+        const data = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          if (lines[i].trim() === "") continue;
+
+          const values = lines[i]
+            .split(",")
+            .map((v) => v.trim().replace(/"/g, ""));
+          const record = {};
+
+          headers.forEach((header, index) => {
+            record[header] = values[index] || "";
+          });
+
+          data.push(record);
+        }
+
+        return data;
+      }
+
+      function convertToFirestore(record) {
+        const packages = {};
+
+        // Defined mapping: Firestore Key -> [List of possible CSV Header Names]
+        const mapping = {
+          "warp": ["WARP QTY", "PALLET", "WOODEN CASE 96x219x83"],
+          "returnable": ["RETURNABLE QTY", "RETURNABLE P110X110X110"],
+          "110x110x115": ["110x110x115 QTY", "PALLET 110x110x115"],
+          "110x110x90": ["110x110x90 QTY", "PALLET 110x110x90"],
+          "110x110x65": ["110x110x65 QTY", "PALLET 110x110x65"],
+          "80x120x115": ["80X120X115 QTY", "PALLET 80x120x115"],
+          "80x120x90": ["80X120X90 QTY", "PALLET 80x120x90"],
+          "80x120x65": ["80X120X65 QTY", "PALLET 80x120x65"],
+          "42x46x68": ["42X46X68 QTY", "PALLET 42X46X68"],
+          "47x66x68": ["47X66X68 QTY", "PALLET 47X66X68"],
+          "53x53x58": ["53X53X58 QTY", "PALLET 53X53X58"],
+          "57x64x84": ["57X64X84 QTY", "PALLET 57X64X84"],
+          "68x74x86": ["68X74X86 QTY", "PALLET 68X74X86"],
+          "70x100x90": ["70X100X90 QTY", "PALLET 70X100X90"],
+          "27x27x22": ["27X27X22 QTY", "CARTON 27X27X22"],
+          "53x53x19": ["53X53X19 QTY", "CARTON 53X53X19"],
+          "unit": ["UNIT QTY", "UNIT"]
+        };
+
+        // Initialize all package keys to 0
+        Object.keys(mapping).forEach(key => packages[key] = 0);
+
+        // Process mapping: Sum up values from all matching columns found in the record
+        Object.entries(mapping).forEach(([firestoreKey, possibleHeaders]) => {
+          let total = 0;
+          possibleHeaders.forEach(header => {
+            // Case-insensitive lookup for headers in the record
+            const matchingHeader = Object.keys(record).find(k => k.trim().toUpperCase() === header.trim().toUpperCase());
+            if (matchingHeader) {
+               total += (Number(record[matchingHeader]) || 0);
+            }
+          });
+          packages[firestoreKey] = total;
+        });
+
+        return {
+          date: record.Date, // Keep as dd-mm-yyyy format
+          shipment: record.Shipment || "",
+          mode: record.Mode || "",
+          product: record.Product || "",
+          siQty: Number(record["SI QTY"]) || 0,
+          qty: Number(record.QTY) || 0,
+          packages,
+          remark: record.Remark || "",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+      }
+
+      async function importBatch(records, batchSize = 50) {
+        const total = records.length;
+        let successCount = 0;
+        let errorCount = 0;
+        let batchCount = 0;
+        importStartTime = Date.now();
+
+        log(
+          `🚀 Starting import of ${total} records with batch size ${batchSize}`,
+        );
+        document.getElementById("eta").style.display = "block";
+
+        for (let i = 0; i < total; i += batchSize) {
+          batchCount++;
+          const batch = records.slice(i, i + batchSize);
+          const progress = Math.round((i / total) * 100);
+
+          document.getElementById("progress").value = progress;
+          document.getElementById("progressText").textContent =
+            `${progress}% (${i + batch.length}/${total})`;
+
+          // Update ETA
+          updateETA(batchCount, Math.ceil(total / batchSize), importStartTime);
+
+          log(
+            `📦 Processing batch ${batchCount}/${Math.ceil(total / batchSize)} (${batch.length} records)`,
+          );
+
+          try {
+            // Use Promise.allSettled for better error handling
+            const promises = batch.map(async (record, index) => {
+              try {
+                const firestoreData = convertToFirestore(record);
+                const docRef = await db
+                  .collection("packingRecords")
+                  .add(firestoreData);
+                return { success: true, id: docRef.id, index: i + index };
+              } catch (error) {
+                log(`❌ Error in record ${i + index}: ${error.message}`);
+                return {
+                  success: false,
+                  error: error.message,
+                  index: i + index,
+                };
+              }
+            });
+
+            const results = await Promise.allSettled(promises);
+
+            results.forEach((result) => {
+              if (result.status === "fulfilled" && result.value.success) {
+                successCount++;
+              } else {
+                errorCount++;
+              }
+            });
+
+            log(
+              `✅ Batch ${batchCount} completed. Success: ${successCount}, Errors: ${errorCount}`,
+            );
+
+            // Progressive delay to avoid Firebase rate limits
+            const baseDelay = 1000;
+            const progressiveDelay = Math.min(
+              baseDelay + batchCount * 50,
+              3000,
+            );
+
+            if (i + batchSize < total) {
+              log(`⏳ Waiting ${progressiveDelay}ms before next batch...`);
+              await new Promise((resolve) =>
+                setTimeout(resolve, progressiveDelay),
+              );
+            }
+          } catch (error) {
+            log(`💥 Batch ${batchCount} failed: ${error.message}`);
+            errorCount += batch.length;
+          }
+
+          // Memory management for large imports
+          if (batchCount % 20 === 0) {
+            log(`🧹 Memory checkpoint at batch ${batchCount}`);
+            if (window.gc) {
+              window.gc();
+            }
+          }
+
+          // Allow UI to update
+          if (batchCount % 5 === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 10));
+          }
+        }
+
+        document.getElementById("progress").value = 100;
+        document.getElementById("progressText").textContent = "100%";
+        document.getElementById("eta").style.display = "none";
+
+        const totalTime = ((Date.now() - importStartTime) / 1000).toFixed(1);
+        log(
+          `🎉 Import completed in ${totalTime}s! Total: ${total}, Success: ${successCount}, Errors: ${errorCount}`,
+        );
+
+        // Show detailed summary
+        const summaryDiv = document.createElement("div");
+        summaryDiv.style.cssText =
+          "background: #e8f5e8; padding: 15px; margin: 10px 0; border-radius: 8px; border: 2px solid #4CAF50;";
+        summaryDiv.innerHTML = `
+                <h3 style="margin-top: 0; color: #2e7d32;">📊 Import Summary</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><strong>Total Records:</strong> ${total}</div>
+                    <div><strong>Time Taken:</strong> ${totalTime}s</div>
+                    <div><strong>Successful:</strong> <span style="color: green;">${successCount}</span></div>
+                    <div><strong>Failed:</strong> <span style="color: red;">${errorCount}</span></div>
+                    <div><strong>Success Rate:</strong> ${((successCount / total) * 100).toFixed(1)}%</div>
+                    <div><strong>Avg Speed:</strong> ${(successCount / parseFloat(totalTime)).toFixed(1)} records/sec</div>
+                </div>
+                ${errorCount > 0 ? '<p style="color: orange; margin-top: 10px;">⚠️ Some records failed. Check the log above for details.</p>' : ""}
+            `;
+        document.getElementById("log").appendChild(summaryDiv);
+      }
+
+      document
+        .getElementById("csvFile")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const text = e.target.result;
+
+            if (file.name.endsWith(".json")) {
+              importData = JSON.parse(text);
+            } else {
+              importData = parseCSV(text);
+            }
+
+            log(`Loaded ${importData.length} records from ${file.name}`);
+            document.getElementById("importBtn").disabled = false;
+          };
+          reader.readAsText(file);
+        });
+
+      document
+        .getElementById("importBtn")
+        .addEventListener("click", async function () {
+          if (isImporting || importData.length === 0) return;
+
+          isImporting = true;
+          this.disabled = true;
+          document.getElementById("progressBar").style.display = "block";
+
+          log("Starting import...");
+          await importBatch(importData);
+
+          isImporting = false;
+          this.disabled = false;
+        });
+    </script>
+  </body>
+</html>

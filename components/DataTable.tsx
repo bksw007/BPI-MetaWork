@@ -82,22 +82,22 @@ const DataTable: React.FC<DataTableProps> = ({ data, isDarkMode }) => {
   };
 
   return (
-    <div className={`rounded-xl shadow-sm border overflow-hidden flex flex-col h-[calc(100vh-270px)] transition-colors duration-300 ${
+    <div className={`card-pastel overflow-hidden flex flex-col h-[calc(100vh-270px)] transition-colors duration-300 ${
       isDarkMode 
-        ? 'bg-slate-800 border-slate-700 shadow-[0_0_15px_rgba(59,130,246,0.1)]' 
-        : 'bg-white border-slate-200'
+        ? 'bg-slate-800/80 backdrop-blur-sm border-lavender-200/30 shadow-[0_0_15px_rgba(232,213,255,0.1)]' 
+        : ''
     }`}>
       <div className="overflow-x-auto flex-1 custom-scrollbar">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className={`border-b ${isDarkMode ? 'bg-slate-900/50 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+            <tr className={`border-b ${isDarkMode ? 'bg-slate-900/50 border-slate-700' : 'bg-lavender-50/50 border-lavender-200/50'}`}>
               {sortedHeaders.map(header => (
                 <th 
                   key={header} 
                   className={`p-3 text-xs font-black uppercase tracking-wider whitespace-nowrap sticky top-0 cursor-pointer transition-colors select-none group border-b-2 ${
                     isDarkMode 
-                      ? 'bg-slate-900 text-blue-400 hover:bg-slate-800 border-b-blue-500/50' 
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-b-blue-500'
+                      ? 'bg-slate-900 text-lavender-400 hover:bg-slate-800 border-b-lavender-500/50' 
+                      : 'bg-lavender-100 text-slate-700 hover:bg-lavender-200 border-b-lavender-500'
                   }`}
                   onClick={() => handleSort(header)}
                 >
@@ -115,9 +115,9 @@ const DataTable: React.FC<DataTableProps> = ({ data, isDarkMode }) => {
               ))}
             </tr>
           </thead>
-          <tbody className={`divide-y ${isDarkMode ? 'divide-slate-700' : 'divide-slate-100'}`}>
+          <tbody className={`divide-y ${isDarkMode ? 'divide-slate-700' : 'divide-lavender-100/50'}`}>
             {currentData.map((row) => (
-              <tr key={row.id} className={`transition-colors ${isDarkMode ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'}`}>
+              <tr key={row.id} className={`transition-colors ${isDarkMode ? 'hover:bg-slate-700/50' : 'hover:bg-lavender-50/50'}`}>
                 {sortedHeaders.map(header => (
                   <td key={`${row.id}-${header}`} className={`p-3 text-sm whitespace-nowrap ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
                     {formatCell(header, row[header])}
@@ -139,8 +139,8 @@ const DataTable: React.FC<DataTableProps> = ({ data, isDarkMode }) => {
       {/* Pagination */}
       <div className={`p-4 border-t flex justify-between items-center flex-shrink-0 ${
         isDarkMode 
-          ? 'border-slate-700 bg-slate-800' 
-          : 'border-slate-200 bg-white'
+          ? 'border-slate-700 bg-slate-800/80' 
+          : 'border-lavender-200/50 bg-white/80 backdrop-blur-sm'
       }`}>
         <span className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
           Showing {sortedData.length > 0 ? page * rowsPerPage + 1 : 0} to {Math.min((page + 1) * rowsPerPage, sortedData.length)} of {sortedData.length} records

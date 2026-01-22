@@ -49,7 +49,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Gradient Header */}
-        <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-center">
+        <div className="bg-gradient-to-r from-mint-400 to-mint-500 p-6 text-center">
           <div className="w-16 h-16 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-3 animate-bounce">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
@@ -65,7 +65,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           {/* Progress Bar */}
           <div className="mt-4 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse"
+              className="h-full bg-gradient-to-r from-mint-400 to-mint-500 rounded-full animate-pulse"
               style={{ 
                 width: '100%',
                 animation: 'shrink 3s linear forwards'

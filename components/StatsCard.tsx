@@ -15,18 +15,20 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon: Icon, color, 
   // Simple mapping based on the bg-class passed
   const getShadowClass = () => {
      if (isDarkMode) {
-       // Neon effect: box-shadow with the specific color
-       if (color.includes('blue')) return 'shadow-[0_0_15px_rgba(59,130,246,0.5)] border-blue-500/30';
-       if (color.includes('emerald')) return 'shadow-[0_0_15px_rgba(16,185,129,0.5)] border-emerald-500/30';
-       if (color.includes('indigo')) return 'shadow-[0_0_15px_rgba(99,102,241,0.5)] border-indigo-500/30';
-       if (color.includes('amber')) return 'shadow-[0_0_15px_rgba(245,158,11,0.5)] border-amber-500/30';
+       // Pastel neon effect
+       if (color.includes('blue') || color.includes('powder')) return 'shadow-[0_0_15px_rgba(212,232,245,0.3)] border-powder-500/30';
+       if (color.includes('emerald') || color.includes('mint')) return 'shadow-[0_0_15px_rgba(224,247,233,0.3)] border-mint-500/30';
+       if (color.includes('lavender')) return 'shadow-[0_0_15px_rgba(232,213,255,0.3)] border-lavender-500/30';
+       if (color.includes('peach')) return 'shadow-[0_0_15px_rgba(255,229,217,0.3)] border-peach-500/30';
+       if (color.includes('amber') || color.includes('golden')) return 'shadow-[0_0_15px_rgba(255,216,155,0.3)] border-golden-500/30';
        return 'shadow-[0_0_15px_rgba(255,255,255,0.1)]';
      } else {
-       // Light mode colored shadow
-       if (color.includes('blue')) return 'shadow-blue-200 shadow-lg';
-       if (color.includes('emerald')) return 'shadow-emerald-200 shadow-lg';
-       if (color.includes('indigo')) return 'shadow-indigo-200 shadow-lg';
-       if (color.includes('amber')) return 'shadow-amber-200 shadow-lg';
+       // Pastel colored shadow
+       if (color.includes('blue') || color.includes('powder')) return 'shadow-powder-200 shadow-lg';
+       if (color.includes('emerald') || color.includes('mint')) return 'shadow-mint-200 shadow-lg';
+       if (color.includes('lavender')) return 'shadow-lavender-200 shadow-lg';
+       if (color.includes('peach')) return 'shadow-peach-200 shadow-lg';
+       if (color.includes('amber') || color.includes('golden')) return 'shadow-golden-200 shadow-lg';
        return 'shadow-md';
      }
   };
@@ -34,8 +36,8 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon: Icon, color, 
   return (
     <div className={`rounded-xl p-6 flex items-start justify-between transition-all duration-300 ${
        isDarkMode 
-         ? 'bg-slate-800 border text-white ' + getShadowClass() 
-         : 'bg-white border border-slate-100 ' + getShadowClass()
+         ? 'bg-slate-800/80 backdrop-blur-sm border border-lavender-200/30 text-white ' + getShadowClass() 
+         : 'card-pastel ' + getShadowClass()
     } hover:-translate-y-1`}>
       <div>
         <p className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{title}</p>
