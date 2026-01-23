@@ -61,7 +61,7 @@ const PendingHero: React.FC = () => {
                   </button>
                   <button
                     onClick={() => navigate('/login?mode=signup')}
-                    className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                    className="flex items-center gap-2 px-4 py-2 bg-lavender-100 text-lavender-700 border border-lavender-200 rounded-lg hover:bg-lavender-200 transition-colors font-medium"
                   >
                     <UserPlus className="w-4 h-4" />
                     Sign Up

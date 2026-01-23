@@ -7,6 +7,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  inMemoryPersistence,
+  setPersistence,
   User as FirebaseUser
 } from 'firebase/auth';
 import { 
@@ -14,6 +16,7 @@ import {
   doc, 
   getDoc, 
   setDoc, 
+  updateDoc,
   Timestamp 
 } from 'firebase/firestore';
 import app, { db } from '../config/firebase'; // Ensure app is initialized
@@ -28,6 +31,7 @@ export interface UserProfile {
   status: 'pending' | 'approved';
   createdAt: Date;
   updatedAt: Date;
+  lastActive?: Date;
 }
 
 interface AuthContextType {
@@ -63,7 +67,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const auth = getAuth(app);
-  // const db = getFirestore(); // Use imported db instead
+  
+  // Set persistence to inMemory - logout on browser/tab close
+  useEffect(() => {
+    setPersistence(auth, inMemoryPersistence).catch(console.error);
+  }, [auth]);
 
   // Fetch or create user profile from Firestore
   const fetchUserProfile = async (firebaseUser: FirebaseUser): Promise<UserProfile | null> => {
@@ -73,6 +81,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (userDoc.exists()) {
         const data = userDoc.data();
+        
+        // Update lastActive timestamp
+        await updateDoc(userDocRef, {
+          lastActive: Timestamp.now()
+        });
+        
         return {
           uid: firebaseUser.uid,
           email: data.email,
@@ -82,9 +96,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           status: data.status,
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date(),
+          lastActive: new Date(),
         };
       } else {
         // Create new user profile (pending approval)
+        const now = new Date();
         const newProfile: UserProfile = {
           uid: firebaseUser.uid,
           email: firebaseUser.email || '',
@@ -92,14 +108,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           photoURL: firebaseUser.photoURL || null, // Fix: Firestore doesn't accept undefined
           role: 'user',
           status: 'pending',
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: now,
+          updatedAt: now,
+          lastActive: now,
         };
 
         await setDoc(userDocRef, {
           ...newProfile,
           createdAt: Timestamp.fromDate(newProfile.createdAt),
           updatedAt: Timestamp.fromDate(newProfile.updatedAt),
+          lastActive: Timestamp.fromDate(now),
         });
 
         return newProfile;

@@ -1,16 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart3, UserPlus, LogOut, Kanban, ClipboardList, FileBarChart } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 const HomeHero: React.FC = () => {
   const navigate = useNavigate();
-  const { userProfile, logout } = useAuth();
+  const { userProfile, logout, isAdmin } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
 
   const handleLogout = async () => {
     await logout();
     navigate('/pending');
   };
+
+  // Fetch pending users count for admins
+  useEffect(() => {
+    if (!isAdmin) return;
+    
+    const fetchPendingCount = async () => {
+      try {
+        const db = getFirestore();
+        const pendingQuery = query(collection(db, 'users'), where('status', '==', 'pending'));
+        const snapshot = await getDocs(pendingQuery);
+        setPendingCount(snapshot.size);
+      } catch (error) {
+        console.error('Error fetching pending count:', error);
+      }
+    };
+    
+    fetchPendingCount();
+  }, [isAdmin]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pb-20">
@@ -37,20 +57,19 @@ const HomeHero: React.FC = () => {
             {/* Right: Navigation Menu */}
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 sm:gap-2">
-                <button
-                  onClick={() => navigate('/dashboard')}
-                  className="flex items-center gap-2 px-3 py-2 text-slate-700 hover:text-indigo-600 hover:bg-white/50 rounded-lg transition-all font-medium"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  <span className="hidden md:inline">Dashboard</span>
-                </button>
 
                 <button
                   onClick={() => navigate('/profile')}
-                    className="flex items-center gap-2 px-3 py-2 text-slate-700 hover:text-indigo-600 hover:bg-white/50 rounded-lg transition-all font-medium"
+                  className="relative flex items-center gap-2 px-3 py-2 text-slate-700 hover:text-indigo-600 hover:bg-white/50 rounded-lg transition-all font-medium"
                 >
                   <UserPlus className="w-4 h-4" />
                   <span className="hidden md:inline">Profile</span>
+                  {/* Red dot alert for pending users - Admin only */}
+                  {isAdmin && pendingCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                      {pendingCount > 9 ? '9+' : pendingCount}
+                    </span>
+                  )}
                 </button>
               </div>
               
@@ -90,7 +109,7 @@ const HomeHero: React.FC = () => {
           </p>
 
           {/* Stats preview with icons */}
-          <div className="mt-24 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+          <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
             <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md border border-lavender-200/50">
               <Kanban className="w-8 h-8 text-lavender-500 mx-auto mb-2" />
               <div className="text-sm font-semibold text-slate-700">Smart Board</div>
@@ -103,6 +122,13 @@ const HomeHero: React.FC = () => {
               <FileBarChart className="w-8 h-8 text-mint-500 mx-auto mb-2" />
               <div className="text-sm font-semibold text-slate-700">Packing Report</div>
             </div>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md border border-indigo-200/50 hover:bg-white/80 hover:shadow-lg hover:border-indigo-300 transition-all cursor-pointer"
+            >
+              <BarChart3 className="w-8 h-8 text-indigo-500 mx-auto mb-2" />
+              <div className="text-sm font-semibold text-slate-700">Packing Dashboard</div>
+            </button>
           </div>
         </div>
       </div>
