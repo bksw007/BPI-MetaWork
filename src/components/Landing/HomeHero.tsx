@@ -46,13 +46,8 @@ const HomeHero: React.FC = () => {
       <div className="absolute top-0 left-0 right-0 z-20 p-6">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            {/* Left: Logo & Brand */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 flex items-center justify-center overflow-hidden">
-                <img src="/concept 2.1.png" alt="BPI MetaWork" className="w-full h-full object-cover drop-shadow-md" />
-              </div>
-              <span className="font-bold text-slate-700 text-lg hidden sm:block">BPI MetaWork</span>
-            </div>
+            {/* Left: Empty space for alignment */}
+            <div></div>
 
             {/* Right: Navigation Menu */}
             <div className="flex items-center gap-3">

@@ -128,6 +128,7 @@ export default {
         'gradient-soft': 'linear-gradient(135deg, #E0F7E9 0%, #D4E8F5 50%, #F5E6E8 100%)',
         'gradient-fresh': 'linear-gradient(60deg, #a1c4fd 0%, #abecd6 50%, #fbed96 100%)',
         'gradient-sage-sand': 'linear-gradient(135deg, #C5D6BA 0%, #F2E9D3 50%, #F6C8B6 100%)',
+        'gradient-candy': 'linear-gradient(to top, #a1c4fd 0%, #ffd1ff 50%, #fad0c4 100%)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
