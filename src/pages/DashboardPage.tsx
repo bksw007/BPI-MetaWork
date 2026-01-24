@@ -60,19 +60,19 @@ const DashboardPage: React.FC = () => {
 
   const loadData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const apiData = await getPackingRecords();
       if (apiData.length > 0) {
         setData(apiData);
       } else {
-        // Fallback to sample data if Firebase is empty
-        setData(generateSampleData());
+        setData([]); 
       }
       setLastUpdated(new Date());
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading data:', error);
-      // Fallback to sample data on error
-      setData(generateSampleData());
+      setError(`Failed to load data: ${error.message || 'Unknown error'}`);
+      setData([]); 
     } finally {
       setIsLoading(false);
     }
