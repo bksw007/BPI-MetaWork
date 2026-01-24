@@ -46,6 +46,8 @@ const DashboardPage: React.FC = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<string>('All');
   const [selectedProduct, setSelectedProduct] = useState<string>('All');
 
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     loadData();
     
@@ -326,6 +328,20 @@ const DashboardPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 rounded-xl flex items-center gap-3">
+            <div className="p-2 bg-red-200 rounded-full">
+              <X className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold">Error Loading Data</h3>
+              <p className="text-sm">{error}</p>
+              <p className="text-xs mt-1 text-red-600">Please check your Firebase configuration and permissions.</p>
+            </div>
+          </div>
+        )}
 
         {/* Filters */}
         {view !== 'input' && (
