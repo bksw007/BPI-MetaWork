@@ -10,6 +10,7 @@ import PendingPage from './src/pages/PendingPage';
 import UserProfilePage from './src/pages/UserProfilePage';
 import AdminProfilePage from './src/pages/AdminProfilePage';
 import DashboardPage from './src/pages/DashboardPage';
+import SmartBoardPage from './src/pages/SmartBoardPage';
 import FirebaseTest from './src/components/FirebaseTest';
 
 const App: React.FC = () => {
@@ -40,6 +41,11 @@ const App: React.FC = () => {
             <DashboardPage />
           </ProtectedRoute>
         } />
+        <Route path="/smart-board" element={
+          <ProtectedRoute>
+            <SmartBoardPage />
+          </ProtectedRoute>
+        } />
         <Route path="/profile" element={
           <ProtectedRoute>
             <UserProfilePage />
@@ -60,5 +66,6 @@ const App: React.FC = () => {
     </AuthProvider>
   );
 };
+
 
 export default App;

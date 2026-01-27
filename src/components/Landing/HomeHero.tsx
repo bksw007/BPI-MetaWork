@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 const HomeHero: React.FC = () => {
+  // Force refresh
   const navigate = useNavigate();
   const { userProfile, logout, isAdmin } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
@@ -43,7 +44,7 @@ const HomeHero: React.FC = () => {
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-mint-200/20 rounded-full blur-3xl"></div>
 
       {/* Navigation Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-6">
+      <div className="absolute top-0 left-0 right-0 z-20 h-16 flex items-center">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             {/* Left: Empty space for alignment */}
@@ -105,10 +106,13 @@ const HomeHero: React.FC = () => {
 
           {/* Stats preview with icons */}
           <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md border border-lavender-200/50">
+            <button 
+              onClick={() => navigate('/smart-board')}
+              className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md border border-lavender-200/50 hover:bg-white/80 hover:shadow-lg hover:border-lavender-300 transition-all cursor-pointer"
+            >
               <Kanban className="w-8 h-8 text-lavender-500 mx-auto mb-2" />
               <div className="text-sm font-semibold text-slate-700">Smart Board</div>
-            </div>
+            </button>
             <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md border border-peach-200/50">
               <ClipboardList className="w-8 h-8 text-peach-500 mx-auto mb-2" />
               <div className="text-sm font-semibold text-slate-700">Live Tracking</div>

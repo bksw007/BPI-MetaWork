@@ -7,7 +7,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  inMemoryPersistence,
+  browserLocalPersistence,
   setPersistence,
   User as FirebaseUser
 } from 'firebase/auth';
@@ -17,6 +17,7 @@ import {
   getDoc, 
   setDoc, 
   updateDoc,
+  onSnapshot,
   Timestamp 
 } from 'firebase/firestore';
 import app, { db } from '../config/firebase'; // Ensure app is initialized
@@ -68,9 +69,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const auth = getAuth(app);
   
-  // Set persistence to inMemory - logout on browser/tab close
+  // Set persistence to browserLocalPersistence - keep login across sessions
   useEffect(() => {
-    setPersistence(auth, inMemoryPersistence).catch(console.error);
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
   }, [auth]);
 
   // Fetch or create user profile from Firestore
@@ -147,6 +148,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     return () => unsubscribe();
   }, [auth]);
+
+  // Real-time listener for user profile changes (for pending → approved auto-redirect)
+  useEffect(() => {
+    if (!user) return;
+
+    const userDocRef = doc(db, 'users', user.uid);
+    const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        setUserProfile(prev => prev ? {
+          ...prev,
+          status: data.status,
+          role: data.role,
+          displayName: data.displayName,
+          photoURL: data.photoURL,
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } : null);
+        
+        console.log('Profile updated in real-time:', data.status);
+      }
+    }, (error) => {
+      console.error('Profile listener error:', error);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   // Google Sign In
   const loginWithGoogle = async () => {

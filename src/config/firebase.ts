@@ -20,7 +20,21 @@ if (getApps().length === 0) {
 }
 
 // Initialize Firestore
+import { enableIndexedDbPersistence } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
+
 export const db: Firestore = getFirestore(app);
+export const storage: FirebaseStorage = getStorage(app);
+
+if (typeof window !== 'undefined') {
+  enableIndexedDbPersistence(db).catch((err) => {
+    if (err.code === 'failed-precondition') {
+      console.warn('Persistence failed: Multiple tabs open');
+    } else if (err.code === 'unimplemented') {
+      console.warn('Persistence failed: Browser not supported');
+    }
+  });
+}
 
 // Initialize Analytics (optional, only in browser environment)
 if (typeof window !== 'undefined') {

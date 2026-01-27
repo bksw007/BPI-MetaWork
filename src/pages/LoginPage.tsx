@@ -89,14 +89,14 @@ const LoginPage: React.FC = () => {
       {/* Back Button */}
       <button
         onClick={() => navigate('/pending')}
-        className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-800 font-medium transition-colors bg-white/50 backdrop-blur-sm rounded-lg"
+        className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-800 hover:bg-white/80 hover:shadow-md font-medium transition-all duration-200 bg-white/50 backdrop-blur-sm rounded-lg"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
       </button>
 
       {/* Login Card - Compact for no scroll */}
-      <div className="relative z-10 w-full max-w-sm p-6 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 animate-slide-up mx-4">
+      <div className="relative z-10 w-full max-w-sm p-6 bg-white/40 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 animate-slide-up mx-4">
         {/* Header */}
         <div className="flex flex-col items-center mb-4">
           <div className="inline-flex items-center justify-center w-24 h-24 mb-3">

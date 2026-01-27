@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogIn, UserPlus, Clock, Kanban, ClipboardList, FileBarChart } from 'lucide-react';
+import { LogIn, UserPlus, Clock, Kanban, ClipboardList, FileBarChart, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const PendingHero: React.FC = () => {
@@ -37,18 +37,24 @@ const PendingHero: React.FC = () => {
         </div>
       )}
 
-      {/* Navigation Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-6">
+      {/* Navigation Header - Matches HomeHero Style for Consistency */}
+      <div className="absolute top-0 left-0 right-0 z-20 h-16 flex items-center">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            {/* Empty LEFT placeholder */}
+            {/* Left: Empty for alignment */}
             <div></div>
 
-            {/* Auth Buttons */}
+            {/* Right: Navigation Menu */}
             <div className="flex items-center gap-3">
               {isAuthenticated ? (
-                // Logged in (Pending) - Status badge handles info, no button needed here
-                <></>
+                // Logged in (Pending) - Show Logout
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg font-medium transition-all text-sm"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Log out</span>
+                </button>
               ) : (
                 // Not logged in (Guest)
                 <>

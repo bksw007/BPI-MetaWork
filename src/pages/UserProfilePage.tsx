@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import UnifiedNavbar from '../components/UnifiedNavbar';
 import { 
   Home, LogOut, User, Mail, Shield, Camera, 
   Check, X, Key, Calendar, Clock, Edit3, ZoomIn, ZoomOut
@@ -222,34 +223,10 @@ const UserProfilePage: React.FC = () => {
       <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-300/30 blur-[120px] pointer-events-none animate-pulse-slow" />
       <div className="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-pink-300/30 blur-[120px] pointer-events-none animate-pulse-slow delay-1000" />
       
-      {/* Navigation Header - Absolute Positioned */}
-      <header className="absolute top-0 left-0 right-0 z-20 px-6 py-4">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 overflow-hidden drop-shadow-md">
-              <img src="/concept 2.1.png" alt="Logo" className="w-full h-full object-contain" />
-            </div>
-            <span className="text-lg font-bold text-slate-700 hidden sm:inline">BPI MetaWork</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate('/home')} 
-              className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-purple-600 rounded-2xl transition-all font-semibold group drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
-            >
-              <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="hidden sm:inline">Home</span>
-            </button>
-            <button 
-              onClick={handleLogout} 
-              className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-red-500 rounded-2xl transition-all font-semibold group drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
-            >
-              <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="hidden sm:inline">Log out</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Navigation Header - Replaced with UnifiedNavbar */}
+      <div className="absolute top-0 left-0 right-0 z-50">
+        <UnifiedNavbar /> 
+      </div>
 
       {/* Main Content - Centered Profile Card */}
       <main className="relative z-10 w-full max-w-[420px] mx-4 h-screen flex items-center justify-center">

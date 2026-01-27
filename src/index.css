@@ -4,10 +4,10 @@
 
 @layer base {
   body {
-    font-family: "Inter", sans-serif;
+    font-family: "Prompt", sans-serif;
     @apply bg-gradient-to-br from-beige-50 via-lavender-50 to-peach-50 text-slate-800;
   }
-  
+
   .dark body {
     @apply bg-slate-900 text-slate-100;
   }
@@ -19,33 +19,33 @@
     width: 8px;
     height: 8px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-track {
     @apply bg-lavender-50 dark:bg-slate-800 rounded-full;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-lavender-300 dark:bg-slate-600 rounded-full hover:bg-lavender-400 dark:hover:bg-slate-500;
   }
-  
+
   /* Pastel card styles */
   .card-pastel {
     @apply bg-white/80 backdrop-blur-sm border border-lavender-200/50 rounded-2xl shadow-lg shadow-lavender-100/50;
   }
-  
+
   .dark .card-pastel {
     @apply bg-slate-800/80 border-slate-700 shadow-slate-900/50;
   }
-  
+
   /* Pastel button styles */
   .btn-pastel-primary {
     @apply bg-gradient-to-r from-coral-300 to-peach-300 hover:from-coral-400 hover:to-peach-400 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-coral-200/50 hover:shadow-xl hover:shadow-coral-300/50 active:scale-95;
   }
-  
+
   .btn-pastel-secondary {
     @apply bg-white/80 backdrop-blur-sm border-2 border-lavender-300 text-lavender-600 hover:bg-lavender-50 font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg active:scale-95;
   }
-  
+
   .dark .btn-pastel-secondary {
     @apply bg-slate-800/80 border-slate-600 text-lavender-300 hover:bg-slate-700;
   }
