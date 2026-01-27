@@ -6,7 +6,7 @@ import Dashboard from '../../components/Dashboard';
 import DataTable from '../../components/DataTable';
 import DataInputForm from '../../components/DataInputForm';
 import SuccessModal from '../../components/SuccessModal';
-import LoadingModal from '../../components/LoadingModal';
+import UnifiedLoading from '../components/UnifiedLoading';
 import { 
   LayoutDashboard, 
   Table, 
@@ -397,9 +397,9 @@ const DashboardPage: React.FC = () => {
         isDarkMode={isDarkMode}
       />
 
-      <LoadingModal 
-        isOpen={isLoading}
-        isDarkMode={isDarkMode}
+      <UnifiedLoading 
+        mode="fullscreen" 
+        isOpen={isLoading} 
       />
     </div>
   );

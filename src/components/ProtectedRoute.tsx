@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import UnifiedLoading from './UnifiedLoading';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -17,12 +18,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-pastel">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-lavender-300 border-t-lavender-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600 font-medium">Loading...</p>
-        </div>
-      </div>
+      <UnifiedLoading mode="fullscreen" />
     );
   }
 
@@ -47,12 +43,7 @@ export const PublicRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-pastel">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-lavender-300 border-t-lavender-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600 font-medium">Loading...</p>
-        </div>
-      </div>
+      <UnifiedLoading mode="fullscreen" />
     );
   }
 

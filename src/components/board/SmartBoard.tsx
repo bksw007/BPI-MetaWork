@@ -51,7 +51,11 @@ const SmartBoard: React.FC = () => {
     }, 3000);
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      try {
+        if (unsubscribe) unsubscribe();
+      } catch (error) {
+        console.warn("Error during Firestore unsubscribe (ignored):", error);
+      }
       clearTimeout(timeoutId);
     };
   }, []); // Remove dependency on isLoading to prevent re-subscription loops
