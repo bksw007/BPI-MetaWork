@@ -15,14 +15,45 @@ import {
   X, 
   Download, 
   RefreshCw,
-  Home
+  Home,
+  ChevronUp,
+  ChevronDown,
+  Printer 
 } from 'lucide-react';
-import { getPackingRecords, addPackingRecord, subscribeToPackingRecords } from '../services/firebaseService';
+import { getPackingRecords, addPackingRecord, updatePackingRecord, deletePackingRecord, subscribeToPackingRecords } from '../services/firebaseService';
+import ShipmentDetailModal from '../../components/ShipmentDetailModal';
+import { useReactToPrint } from 'react-to-print';
+import { PackingReport } from '../../components/PackingReport';
 
 const DashboardPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const initialView = searchParams.get('view') || 'dashboard';
+  
+  const componentRef = React.useRef<HTMLDivElement>(null);
+  
+  // Custom print styles
+  const pageStyle = `
+    @page {
+      size: A4;
+      margin: 7mm;
+    }
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+    }
+  `;
+
+  // Updated to use contentRef directly as suggested by error logs for newer versions
+  const handlePrint = useReactToPrint({
+    contentRef: componentRef,
+    documentTitle: `Packing_Report_${new Date().toISOString().split('T')[0]}`,
+    pageStyle: pageStyle,
+  });
   
   const [data, setData] = useState<PackingRecord[]>([]);
   const [view, setView] = useState<'dashboard' | 'table' | 'input'>(initialView as any);
@@ -46,6 +77,9 @@ const DashboardPage: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<string>('All');
 
   const [error, setError] = useState<string | null>(null);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<PackingRecord | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -75,15 +109,50 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleAddRecord = async (record: PackingRecord) => {
+  const handleSaveRecord = async (record: PackingRecord) => {
     try {
-      await addPackingRecord(record);
+      if (selectedRecord && selectedRecord.id === record.id) {
+        // Update existing record
+        if (record.id) {
+          await updatePackingRecord(record.id, record);
+          setSuccessMessage('Record updated successfully!');
+        }
+      } else {
+        // Add new record
+        await addPackingRecord(record);
+        setSuccessMessage('Record saved successfully!');
+      }
+      
       setView('table');
-      setSuccessMessage('Record saved successfully to Firebase!');
       setShowSuccessModal(true);
+      setSelectedRecord(null); // Clear selection after save
     } catch (error) {
       console.error('Error saving record:', error);
       alert('Failed to save record. Check console for details.');
+    }
+  };
+
+  const handleRowClick = (record: PackingRecord) => {
+    setSelectedRecord(record);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleEditRecord = (record: PackingRecord) => {
+    setSelectedRecord(record);
+    setIsDetailModalOpen(false);
+    setView('input');
+  };
+
+  const handleDeleteRecord = async (id: string) => {
+    try {
+      await deletePackingRecord(id);
+      setIsDetailModalOpen(false);
+      setSelectedRecord(null);
+      setSuccessMessage('Record deleted successfully.');
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error('Error deleting record:', error);
+      alert('Failed to delete record.');
     }
   };
 
@@ -136,6 +205,7 @@ const DashboardPage: React.FC = () => {
   const exportToCSV = () => {
     if (filteredData.length === 0) return;
     
+    // 1. Define Headers
     const baseHeaders = ['Date', 'Shipment', 'Mode', 'Product', 'SI QTY', 'QTY'];
     const calculatedHeaders = [
       'Total Packages', 
@@ -148,12 +218,16 @@ const DashboardPage: React.FC = () => {
       'Ratio Warp',
       'Ratio Returnable'
     ];
-    
+
+    // Define raw data columns to append (Standard + Boxes + Warp + Returnable + others if any)
     const standardCols = ['110x110x115 QTY', '110x110x90 QTY', '110x110x65 QTY', '80X120X115 QTY', '80X120X90 QTY', '80X120X65 QTY'];
     const boxesCols = ['42X46X68 QTY', '47X66X68 QTY', '53X53X58 QTY', '57X64X84 QTY', '68X74X86 QTY', '70X100X90 QTY', '27X27X22 QTY', '53X53X19 QTY'];
     const warpCols = ['WARP QTY', 'UNIT QTY'];
     const returnableCols = ['RETURNABLE QTY'];
     
+    // Combine all specific package columns for raw data export
+    const rawDataCols = [...standardCols, ...boxesCols, ...warpCols, ...returnableCols, 'Remark'];
+
     const ratioValues: Record<string, number> = {
       '110x110x115 QTY': 1, '110x110x90 QTY': 1, '110x110x65 QTY': 1,
       '80X120X115 QTY': 1, '80X120X90 QTY': 1, '80X120X65 QTY': 1,
@@ -163,11 +237,18 @@ const DashboardPage: React.FC = () => {
       'WARP QTY': 10, 'UNIT QTY': 1
     };
     
-    const allHeaders = [...baseHeaders, ...calculatedHeaders];
+    // Final Headers: Base -> Calculated -> Raw Data
+    const allHeaders = [...baseHeaders, ...calculatedHeaders, ...rawDataCols];
     
+    // Sort data by Date Ascending for export
+    const sortedExportData = [...filteredData].sort((a, b) => {
+      return new Date(a.Date).getTime() - new Date(b.Date).getTime();
+    });
+
     const csvRows = [
       allHeaders.join(','),
-      ...filteredData.map(row => {
+      ...sortedExportData.map(row => {
+        // Calculations
         const standardTotal = standardCols.reduce((sum, col) => sum + (Number(row[col]) || 0), 0);
         const boxesTotal = boxesCols.reduce((sum, col) => sum + (Number(row[col]) || 0), 0);
         const warpTotal = warpCols.reduce((sum, col) => sum + (Number(row[col]) || 0), 0);
@@ -187,14 +268,25 @@ const DashboardPage: React.FC = () => {
         const ratioWarp = calcGroupRatio(warpCols);
         const ratioReturnable = calcGroupRatio(returnableCols);
         
+        // Format Date to dd-mm-yyyy
+        let formattedDate = row.Date;
+        const dateObj = new Date(row.Date);
+        if (!isNaN(dateObj.getTime())) {
+          const day = String(dateObj.getDate()).padStart(2, '0');
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const year = dateObj.getFullYear();
+          formattedDate = `${day}-${month}-${year}`;
+        }
+
+        // Construct Row Values
         const values = [
-          row.Date,
+          formattedDate, // base: Date (dd-mm-yyyy)
           row.Shipment,
           row.Mode,
           row.Product,
-          row['SI QTY'],
-          row.QTY,
-          totalPackages,
+          row['SI QTY'] || 0,
+          row.QTY || 0,
+          totalPackages,       // calculated
           standardTotal,
           boxesTotal,
           warpTotal,
@@ -202,7 +294,12 @@ const DashboardPage: React.FC = () => {
           ratioStandard.toFixed(2),
           ratioBoxes.toFixed(2),
           ratioWarp.toFixed(2),
-          ratioReturnable.toFixed(2)
+          ratioReturnable.toFixed(2),
+          ...rawDataCols.map(col => {
+             const val = row[col];
+             if (col === 'Remark') return val || ''; // Keep Remark empty if null
+             return val !== undefined && val !== '' ? val : 0; // Fill 0 for empty numbers
+          })
         ];
         
         return values.map(val => {
@@ -215,8 +312,14 @@ const DashboardPage: React.FC = () => {
     const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
+    
+    // Generate Filename: packing_export_YYYY-MM-DD_HH-mm.csv
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
+    
     link.setAttribute('href', url);
-    link.setAttribute('download', `packing_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `packing_export_${dateStr}_${timeStr}.csv`);
     link.click();
   };
 
@@ -232,8 +335,23 @@ const DashboardPage: React.FC = () => {
     setSearchParams({ view: newView });
   };
 
+  // Generate Report Description based on filters
+  const reportDescription = useMemo(() => {
+     const parts = [];
+     if (selectedYear !== 'All') parts.push(`Year: ${selectedYear}`);
+     if (selectedMonth !== 'All') {
+       const monthLabel = months.find(m => m.value === selectedMonth)?.label;
+       parts.push(`Month: ${monthLabel}`);
+     }
+     if (selectedCustomer !== 'All') parts.push(`Customer: ${selectedCustomer}`);
+     if (selectedProduct !== 'All') parts.push(`Product: ${selectedProduct}`);
+     
+     if (parts.length === 0) return "Executive summary of all packing activities across all periods.";
+     return `Summary report filtered by ${parts.join(', ')}.`;
+  }, [selectedYear, selectedMonth, selectedCustomer, selectedProduct]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-beige-50 via-lavender-50 to-peach-50 dark:from-slate-900 dark:to-slate-800 flex flex-col">
+    <div className="min-h-screen bg-[linear-gradient(109.6deg,rgba(112,246,255,0.15)_11.2%,rgba(221,108,241,0.10)_42%,rgba(229,106,253,0.25)_71.5%,rgba(123,183,253,0.40)_100.2%)] flex flex-col">
       {/* Header Navigation */}
       {/* Unified Navigation Header */}
       <UnifiedNavbar>
@@ -287,22 +405,6 @@ const DashboardPage: React.FC = () => {
               {view === 'dashboard' ? 'Analytics of historical packing records.' : view === 'table' ? 'Database of all past shipments.' : 'Record a completed packing.'}
             </p>
           </div>
-
-          <div className="flex items-center gap-3">
-               <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-3 py-2 rounded-lg border border-lavender-200 dark:border-slate-700 shadow-sm">
-                 <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-golden-500' : 'bg-mint-500'} animate-pulse`}></div>
-                 {isLoading ? 'Syncing...' : 'Last update: '}
-                 {!isLoading && lastUpdated && <span className="font-bold text-slate-700 dark:text-slate-200">{lastUpdated.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>}
-               </div>
-               <button
-                 onClick={loadData}
-                 disabled={isLoading}
-                 className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 bg-lavender-100 dark:bg-lavender-900/30 text-lavender-600 dark:text-lavender-400 rounded-lg border border-lavender-200 dark:border-lavender-800 hover:bg-lavender-200 dark:hover:bg-lavender-900/50 transition-colors disabled:opacity-50"
-               >
-                 <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-                 Refresh
-               </button>
-          </div>
         </div>
 
         {/* Error Banner */}
@@ -319,75 +421,180 @@ const DashboardPage: React.FC = () => {
           </div>
         )}
 
-        {/* Filters */}
+        {/* Filters - Sleek Horizontal Chips */}
         {view !== 'input' && (
-          <div className="card-pastel p-5 mb-6 flex flex-col md:flex-row flex-wrap gap-4 items-end">
-            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 font-bold mr-2 mb-2 md:mb-0">
-               <Filter className="w-4 h-4" />
-               <span className="text-sm uppercase tracking-wider">Filters</span>
-             </div>
+          <div className="mb-6">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Filter Toggle Button */}
+              <button 
+                onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  isFilterExpanded 
+                    ? 'bg-sky-500 text-white shadow-md' 
+                    : 'bg-white/70 backdrop-blur-sm text-slate-600 hover:bg-white/90 border border-white/50'
+                }`}
+              >
+                <Filter className="w-3.5 h-3.5" />
+                Filters
+                {isFilterExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
 
-             <div className="w-full md:w-32">
-               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Year</label>
-               <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-lavender-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-lavender-500 outline-none">
-                 <option value="All">All Years</option>
-                 {filterOptions.years.map(year => <option key={year} value={year}>{year}</option>)}
-               </select>
-             </div>
+              {/* Active Filter Pills (always visible) */}
+              {selectedYear !== 'All' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-sky-100 text-sky-700 rounded-full text-xs font-medium">
+                  {selectedYear}
+                  <button onClick={() => setSelectedYear('All')} className="hover:text-sky-900"><X className="w-3 h-3" /></button>
+                </span>
+              )}
+              {selectedMonth !== 'All' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
+                  {months.find(m => m.value === selectedMonth)?.label}
+                  <button onClick={() => setSelectedMonth('All')} className="hover:text-emerald-900"><X className="w-3 h-3" /></button>
+                </span>
+              )}
+              {selectedCustomer !== 'All' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-violet-100 text-violet-700 rounded-full text-xs font-medium max-w-[150px] truncate">
+                  {selectedCustomer}
+                  <button onClick={() => setSelectedCustomer('All')} className="hover:text-violet-900 flex-shrink-0"><X className="w-3 h-3" /></button>
+                </span>
+              )}
+              {selectedProduct !== 'All' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium max-w-[150px] truncate">
+                  {selectedProduct}
+                  <button onClick={() => setSelectedProduct('All')} className="hover:text-amber-900 flex-shrink-0"><X className="w-3 h-3" /></button>
+                </span>
+              )}
 
-             <div className="w-full md:w-40">
-               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Month</label>
-               <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-lavender-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-lavender-500 outline-none">
-                 <option value="All">All Months</option>
-                 {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-               </select>
-             </div>
+              {/* Clear All */}
+              {(selectedYear !== 'All' || selectedMonth !== 'All' || selectedCustomer !== 'All' || selectedProduct !== 'All') && (
+                <button onClick={resetFilters} className="text-xs text-slate-400 hover:text-red-500 transition-colors">
+                  Clear all
+                </button>
+              )}
 
-             <div className="w-full md:w-48">
-               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Customer</label>
-               <select value={selectedCustomer} onChange={(e) => setSelectedCustomer(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-lavender-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-lavender-500 outline-none">
-                 <option value="All">All Customers</option>
-                 {filterOptions.customers.map(c => <option key={c} value={c}>{c}</option>)}
-               </select>
-             </div>
+              {/* Export Button */}
+              <div className="ml-auto flex items-center gap-2">
+                <button 
+                  onClick={exportToCSV} 
+                  disabled={filteredData.length === 0} 
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-md text-slate-600 hover:bg-white/40 rounded-full text-xs font-semibold border border-white/30 transition-all disabled:opacity-50"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  CSV
+                </button>
+                <button 
+                  onClick={handlePrint} 
+                  disabled={filteredData.length === 0} 
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/80 backdrop-blur-md text-white hover:bg-indigo-600 rounded-full text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  PDF Report
+                </button>
+              </div>
+            </div>
 
-             <div className="w-full md:w-48">
-               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Product</label>
-               <select value={selectedProduct} onChange={(e) => setSelectedProduct(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-lavender-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-lavender-500 outline-none">
-                 <option value="All">All Products</option>
-                 {filterOptions.products.map(p => <option key={p} value={p}>{p}</option>)}
-               </select>
-             </div>
-
-             <div className="flex gap-2 ml-auto w-full md:w-auto">
-               <button onClick={exportToCSV} disabled={filteredData.length === 0} className="flex-1 md:flex-none px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-lavender-200 dark:border-slate-700 hover:bg-lavender-50 dark:hover:bg-slate-700 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                 <Download className="w-4 h-4" />
-                 Export
-               </button>
-               {(selectedYear !== 'All' || selectedMonth !== 'All' || selectedCustomer !== 'All' || selectedProduct !== 'All') && (
-                 <button onClick={resetFilters} className="px-4 py-2 text-sm font-bold text-coral-600 dark:text-coral-400 hover:bg-coral-50 dark:hover:bg-coral-900/30 rounded-lg flex items-center justify-center gap-1 transition-colors">
-                   <X className="w-4 h-4" />
-                   Clear
-                 </button>
-               )}
-             </div>
+            {/* Expanded Filter Panel */}
+            {isFilterExpanded && (
+              <div className="mt-3 p-4 bg-white/20 backdrop-blur-xl rounded-xl border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.06)] animate-slide-up">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Year</label>
+                    <select 
+                      value={selectedYear} 
+                      onChange={(e) => setSelectedYear(e.target.value)} 
+                      className="w-full px-3 py-2 bg-white/40 border border-white/50 rounded-lg text-sm text-slate-700 font-medium focus:ring-2 focus:ring-sky-200 focus:border-sky-300 outline-none transition-all"
+                    >
+                      <option value="All">All Years</option>
+                      {filterOptions.years.map(year => <option key={year} value={year}>{year}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Month</label>
+                    <select 
+                      value={selectedMonth} 
+                      onChange={(e) => setSelectedMonth(e.target.value)} 
+                      className="w-full px-3 py-2 bg-white/40 border border-white/50 rounded-lg text-sm text-slate-700 font-medium focus:ring-2 focus:ring-sky-200 focus:border-sky-300 outline-none transition-all"
+                    >
+                      <option value="All">All Months</option>
+                      {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Customer</label>
+                    <select 
+                      value={selectedCustomer} 
+                      onChange={(e) => setSelectedCustomer(e.target.value)} 
+                      className="w-full px-3 py-2 bg-white/40 border border-white/50 rounded-lg text-sm text-slate-700 font-medium focus:ring-2 focus:ring-sky-200 focus:border-sky-300 outline-none transition-all"
+                    >
+                      <option value="All">All Customers</option>
+                      {filterOptions.customers.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Product</label>
+                    <select 
+                      value={selectedProduct} 
+                      onChange={(e) => setSelectedProduct(e.target.value)} 
+                      className="w-full px-3 py-2 bg-white/40 border border-white/50 rounded-lg text-sm text-slate-700 font-medium focus:ring-2 focus:ring-sky-200 focus:border-sky-300 outline-none transition-all"
+                    >
+                      <option value="All">All Products</option>
+                      {filterOptions.products.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
+
+        {/* Hidden Report Component for Printing 
+            - Outer div: POSITIONS the content off-screen (left: 200vw) so user doesn't see it.
+            - Inner div: The ACTUAL content to print. Ref is here. It has NO positioning styles (static), 
+              so when react-to-print grabs it, it appears at (0,0) on the paper.
+            - We use 200vw to ensure it doesn't trigger horizontal scroll if possible, or just far away.
+        */}
+        <div style={{ position: 'fixed', top: 0, left: '200vw' }}> 
+          <div 
+            ref={componentRef}
+            style={{ 
+              width: '794px', // A4 width @ 96 DPI
+              minHeight: '1123px', // A4 height
+              backgroundColor: 'white',
+              // No position: fixed/absolute here!
+            }}
+          >
+             <PackingReport 
+                data={filteredData} 
+                reportTitle="Packing Report"
+                reportDescription={reportDescription} 
+             />
+          </div>
+        </div>
 
         {/* Main Content */}
         {view === 'dashboard' ? (
           <Dashboard data={filteredData} isDarkMode={isDarkMode} />
-        ) : view === 'table' ? (
-          <DataTable data={filteredData} isDarkMode={isDarkMode} />
-        ) : (
+        ) : view === 'input' ? (
           <DataInputForm 
-            onSave={handleAddRecord} 
-            onCancel={() => updateView('dashboard')} 
-            existingCustomers={filterOptions.customers}
-            existingProducts={filterOptions.products}
+            onSave={handleSaveRecord} 
+            onCancel={() => {
+              setView('table');
+              setSelectedRecord(null);
+            }} 
+            existingCustomers={Array.from(filterOptions.customers)}
+            existingProducts={Array.from(filterOptions.products)}
             isDarkMode={isDarkMode}
+            initialData={selectedRecord || undefined}
           />
-        )}
+        ) : view === 'table' ? (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <DataTable 
+               data={filteredData} 
+               isDarkMode={isDarkMode} 
+               onRowClick={handleRowClick}
+             />
+          </div>
+        ) : null}
       </main>
 
       <SuccessModal 
@@ -401,6 +608,22 @@ const DashboardPage: React.FC = () => {
         mode="fullscreen" 
         isOpen={isLoading} 
       />
+      
+      {/* Shipment Detail Modal */}
+      {selectedRecord && (
+        <ShipmentDetailModal
+          isOpen={isDetailModalOpen}
+          onClose={() => {
+            setIsDetailModalOpen(false);
+            setSelectedRecord(null); // Clear selection to prevent data leaking to Add form
+          }}
+          record={selectedRecord}
+          onEdit={handleEditRecord}
+          onDelete={handleDeleteRecord}
+          isDarkMode={isDarkMode}
+        />
+      )}
+
     </div>
   );
 };

@@ -10,42 +10,26 @@ interface StatsCardProps {
   isDarkMode?: boolean;
 }
 
-const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon: Icon, color, subValue, isDarkMode }) => {
-  // Extract main color for shadow/glow (assuming standard tailwind colors, simple map or fallback)
-  // Simple mapping based on the bg-class passed
-  const getShadowClass = () => {
-     if (isDarkMode) {
-       // Pastel neon effect
-       if (color.includes('blue') || color.includes('powder')) return 'shadow-[0_0_15px_rgba(212,232,245,0.3)] border-powder-500/30';
-       if (color.includes('emerald') || color.includes('mint')) return 'shadow-[0_0_15px_rgba(224,247,233,0.3)] border-mint-500/30';
-       if (color.includes('lavender')) return 'shadow-[0_0_15px_rgba(232,213,255,0.3)] border-lavender-500/30';
-       if (color.includes('peach')) return 'shadow-[0_0_15px_rgba(255,229,217,0.3)] border-peach-500/30';
-       if (color.includes('amber') || color.includes('golden')) return 'shadow-[0_0_15px_rgba(255,216,155,0.3)] border-golden-500/30';
-       return 'shadow-[0_0_15px_rgba(255,255,255,0.1)]';
-     } else {
-       // Pastel colored shadow
-       if (color.includes('blue') || color.includes('powder')) return 'shadow-powder-200 shadow-lg';
-       if (color.includes('emerald') || color.includes('mint')) return 'shadow-mint-200 shadow-lg';
-       if (color.includes('lavender')) return 'shadow-lavender-200 shadow-lg';
-       if (color.includes('peach')) return 'shadow-peach-200 shadow-lg';
-       if (color.includes('amber') || color.includes('golden')) return 'shadow-golden-200 shadow-lg';
-       return 'shadow-md';
-     }
+const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon: Icon, color, subValue }) => {
+  // Get subtle icon color based on the color prop
+  const getIconColor = () => {
+    if (color.includes('blue') || color.includes('powder') || color.includes('sky')) return 'text-sky-400';
+    if (color.includes('emerald') || color.includes('mint') || color.includes('green')) return 'text-emerald-400';
+    if (color.includes('lavender') || color.includes('violet') || color.includes('purple')) return 'text-violet-400';
+    if (color.includes('peach') || color.includes('rose') || color.includes('pink')) return 'text-rose-400';
+    if (color.includes('amber') || color.includes('golden') || color.includes('orange')) return 'text-amber-400';
+    return 'text-slate-400';
   };
 
   return (
-    <div className={`rounded-xl p-6 flex items-start justify-between transition-all duration-300 ${
-       isDarkMode 
-         ? 'bg-slate-800/80 backdrop-blur-sm border border-lavender-200/30 text-white ' + getShadowClass() 
-         : 'card-pastel ' + getShadowClass()
-    } hover:-translate-y-1`}>
+    <div className="rounded-2xl p-5 flex items-start justify-between transition-all duration-300 bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)]">
       <div>
-        <p className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{title}</p>
-        <h3 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{value}</h3>
-        {subValue && <p className={`text-xs mt-1 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>{subValue}</p>}
+        <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">{title}</p>
+        <h3 className="text-2xl font-bold text-slate-700">{value}</h3>
+        {subValue && <p className="text-xs mt-1 text-slate-400">{subValue}</p>}
       </div>
-      <div className={`p-3 rounded-lg ${color}`}>
-        <Icon className="w-6 h-6 text-white" />
+      <div className={`p-2.5 rounded-xl bg-white/50 border border-white/60 ${getIconColor()}`}>
+        <Icon className="w-5 h-5" strokeWidth={1.5} />
       </div>
     </div>
   );
