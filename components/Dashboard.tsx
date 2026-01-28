@@ -58,7 +58,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Daily Timeline */}
-        <div className="p-6 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] lg:col-span-2">
+        <div className="p-6 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] lg:col-span-2 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-powder-500" />
             Packing Volume Timeline
@@ -93,7 +93,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
         </div>
 
         {/* Mode Distribution */}
-        <div className="p-6 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+        <div className="p-6 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
             <Truck className="w-5 h-5 text-lavender-500" />
             Transport Mode
@@ -125,7 +125,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Shipment/Customers */}
-        <div className="p-6 lg:col-span-1 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+        <div className="p-6 lg:col-span-1 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
             <BarChart2 className="w-5 h-5 text-powder-500" />
             Top Customers
@@ -153,14 +153,18 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
                     fontSize: '12px'
                   }}
                 />
-                <Bar dataKey="value" fill="#A88AFF" radius={[0, 4, 4, 0]} barSize={16} />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={16}>
+                  {shipmentChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Package Dimensions Breakdown */}
-        <div className="p-6 lg:col-span-2 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+        <div className="p-6 lg:col-span-2 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
             <Box className="w-5 h-5 text-mint-500" />
             Package Type Usage
@@ -211,7 +215,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, isDarkMode }) => {
       </div>
 
       {/* Ratio Analysis Section */}
-      <div className="p-6 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+      <div className="p-6 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
         <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
            <Activity className="w-5 h-5 text-golden-500" />
            Ratio Analysis (Product Capacity)

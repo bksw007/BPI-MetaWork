@@ -480,7 +480,7 @@ const DashboardPage: React.FC = () => {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-md text-slate-600 hover:bg-white/40 rounded-full text-xs font-semibold border border-white/30 transition-all disabled:opacity-50"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  CSV
+                  Export CSV
                 </button>
                 <button 
                   onClick={handlePrint} 

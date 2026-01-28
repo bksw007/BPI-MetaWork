@@ -22,7 +22,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon: Icon, color, 
   };
 
   return (
-    <div className="rounded-2xl p-5 flex items-start justify-between transition-all duration-300 bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)]">
+    <div className="rounded-2xl p-5 flex items-start justify-between transition-all duration-300 bg-white/30 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
       <div>
         <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">{title}</p>
         <h3 className="text-2xl font-bold text-slate-700">{value}</h3>
