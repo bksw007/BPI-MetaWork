@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Paperclip, Clock, FileText, User, MessageSquare, History, Loader2, Upload, Trash2 } from 'lucide-react';
+import { X, Send, Paperclip, Clock, FileText, User, MessageSquare, History, Loader2, Upload, Trash2, ArrowRight, RotateCcw, CheckCircle2, AlertTriangle, PlayCircle } from 'lucide-react';
 import { JobCard, JobStatus, Comment, Attachment, AuditLog } from '../../types/jobCard';
 import { 
   addComment, 
   subscribeToComments, 
   uploadAttachment, 
   deleteAttachment, 
-  subscribeToAuditLogs 
+  subscribeToAuditLogs,
+  updateJobCard,
+  reverseJobCard
 } from '../../services/jobCardService';
 
 interface JobCardDetailModalProps {
@@ -35,6 +37,41 @@ const JobCardDetailModal: React.FC<JobCardDetailModalProps> = ({
   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+
+
+  // Workflow Action Handlers
+  const handleReverseStatus = async () => {
+    if (confirm('Are you sure you want to reverse the status? Progress will be reset.')) {
+        await reverseJobCard(job, currentUser.id);
+        onClose(); // Close to refresh/avoid state mismatch
+    }
+  };
+
+  const handleUpdateProgress = async (phase: keyof typeof job.phaseProgress, value: number) => {
+    // 1. Update Local State (Optimistic) via parent refresh or local mutation? 
+    // Ideally we update the DB and let the subscription update the prop `job`.
+    // But for smooth slider, we update DB.
+    
+    // Construct new progress object
+    const currentProgress = job.phaseProgress || { picking: 0, packing: 0, processData: 0, storage: 0 };
+    const newProgress = { ...currentProgress, [phase]: value };
+    
+    await updateJobCard(job.id, { phaseProgress: newProgress }, currentUser.id);
+
+    // Auto-Move Check: If Storage reaches 100%, move to Waiting
+    if (phase === 'storage' && value === 100) {
+        // Ensure other phases are done? The user said "Auto move...". 
+        // Assuming strict sequential flow, others must be done.
+        onUpdateStatus('Waiting');
+    }
+  };
+
+  const handleWaitingInput = async (field: 'jobsheetNo' | 'referenceNo', value: string) => {
+      await updateJobCard(job.id, { [field]: value }, currentUser.id);
+  };
+
+  const canFinishWaiting = job.jobsheetNo && job.referenceNo;
 
   // Subscribe to comments when tab is active
   useEffect(() => {
@@ -160,39 +197,152 @@ const JobCardDetailModal: React.FC<JobCardDetailModalProps> = ({
       <div className="w-full max-w-5xl bg-white/50 backdrop-blur-2xl rounded-[30px] shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] border border-white/40 overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="p-6 border-b border-white/30 flex justify-between items-start bg-white/50 backdrop-blur-md sticky top-0 z-10">
+        <div className="p-5 border-b border-white/30 flex justify-between items-start bg-white/50 backdrop-blur-md sticky top-0 z-10">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className={`px-2.5 py-1 text-xs font-bold rounded-full uppercase tracking-wide shadow-sm ${getStatusColor(job.status)}`}>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wide shadow-sm ${getStatusColor(job.status)}`}>
                 {job.status}
               </span>
-              <span className="text-slate-400 text-sm font-mono bg-white/50 px-2 py-0.5 rounded-md">#{job.id.slice(-6)}</span>
+              <span className="text-slate-400 text-xs font-mono bg-white/50 px-1.5 py-0.5 rounded-md">#{job.id.slice(-6)}</span>
             </div>
-            <h2 className="text-3xl font-extrabold text-slate-800 mb-1">{job.title}</h2>
-            <div className="flex items-center gap-4 text-sm text-slate-500 font-medium">
-               <span className="flex items-center gap-1"><User size={14} className="text-blue-400" /> {job.customer}</span>
+            <h2 className="text-2xl font-extrabold text-slate-800 mb-0.5">{job.title}</h2>
+            <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+               <span className="flex items-center gap-1"><User size={12} className="text-blue-400" /> {job.customer}</span>
                <span className="w-1 h-1 rounded-full bg-slate-300" />
                <span className="flex items-center gap-1">{job.product}</span>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2.5 bg-white/50 hover:bg-red-50 hover:text-red-500 rounded-full transition-all text-slate-400 shadow-sm backdrop-blur-sm"
+            className="p-2 bg-white/50 hover:bg-red-50 hover:text-red-500 rounded-full transition-all text-slate-400 shadow-sm backdrop-blur-sm"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
+        </div>
+        
+        {/* ACTION ZONE - Workflow Controls */}
+        <div className="px-5 py-3 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-white/20">
+            {job.status === 'Allocated' && (
+                <button 
+                    onClick={() => onUpdateStatus('OnProcess')}
+                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-black text-base shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                >
+                    <PlayCircle size={20} fill="currentColor" className="text-white/20" />
+                    Let's Go !!
+                </button>
+            )}
+
+            {job.status === 'OnProcess' && (
+                <div className="space-y-4">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Work Progress</h3>
+                    
+                    {/* 4 Steps Sliders with Logic */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                        {/* Picking */}
+                        <SliderControl 
+                            label="1. Picking" 
+                            value={job.phaseProgress?.picking || 0} 
+                            onChange={(v) => handleUpdateProgress('picking', v)}
+                            color="text-blue-600"
+                        />
+                         {/* Packing - Locked if Picking < 90 */}
+                        <SliderControl 
+                            label="2. Packing" 
+                            value={job.phaseProgress?.packing || 0} 
+                            onChange={(v) => handleUpdateProgress('packing', v)}
+                            disabled={(job.phaseProgress?.picking || 0) < 90}
+                            color="text-purple-600"
+                        />
+                         {/* Data - Locked if Packing < 90 */}
+                        <SliderControl 
+                            label="3. Data Process" 
+                            value={job.phaseProgress?.processData || 0} 
+                            onChange={(v) => handleUpdateProgress('processData', v)}
+                            disabled={(job.phaseProgress?.packing || 0) < 90}
+                            color="text-pink-600"
+                        />
+                         {/* Storage - Locked if Data < 90 */}
+                        <SliderControl 
+                            label="4. Storage" 
+                            value={job.phaseProgress?.storage || 0} 
+                            onChange={(v) => handleUpdateProgress('storage', v)}
+                            disabled={(job.phaseProgress?.processData || 0) < 90}
+                            color="text-indigo-600"
+                        />
+                    </div>
+                </div>
+            )}
+
+            {job.status === 'Waiting' && (
+                <div className="space-y-4">
+                    <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-start gap-3">
+                        <AlertTriangle className="text-orange-500 shrink-0 mt-0.5" size={20} />
+                        <div className="flex-1">
+                            <h4 className="font-bold text-orange-800 text-sm">Action Required</h4>
+                            <p className="text-xs text-orange-600 mt-1">Please enter the Jobsheet No. and Reference No. to proceed.</p>
+                            
+                            <div className="grid grid-cols-2 gap-4 mt-3">
+                                <input 
+                                    type="text" 
+                                    placeholder="Jobsheet No."
+                                    defaultValue={job.jobsheetNo}
+                                    onBlur={(e) => handleWaitingInput('jobsheetNo', e.target.value)}
+                                    className="w-full px-3 py-2 bg-white border border-orange-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none"
+                                />
+                                <input 
+                                    type="text" 
+                                    placeholder="Reference No."
+                                    defaultValue={job.referenceNo}
+                                    onBlur={(e) => handleWaitingInput('referenceNo', e.target.value)}
+                                    className="w-full px-3 py-2 bg-white border border-orange-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        onClick={() => onUpdateStatus('Complete')}
+                        disabled={!canFinishWaiting}
+                        className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    >
+                        <CheckCircle2 size={20} />
+                        Finish Job
+                    </button>
+                </div>
+            )}
+
+            {job.status === 'Complete' && (
+                 <button 
+                    onClick={() => onUpdateStatus('Report')}
+                    className="w-full py-3 bg-slate-800 text-white rounded-xl font-black text-base shadow-md hover:shadow-lg hover:bg-slate-900 transition-all flex items-center justify-center gap-2"
+                >
+                    <CheckCircle2 size={20} className="text-green-400" />
+                    Report Completed & Archive
+                </button>
+            )}
+            
+            {/* Reverse & Tools */}
+            <div className="flex justify-end mt-2">
+                 <button 
+                    onClick={handleReverseStatus}
+                    className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1 px-2 py-1 hover:bg-slate-100 rounded-lg transition-colors"
+                    title="Reverse Status"
+                 >
+                    <RotateCcw size={12} /> Reverse Status
+                 </button>
+            </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex px-6 bg-white/40 border-b border-white/20 backdrop-blur-sm">
-          <TabButton active={activeTab === 'details'} onClick={() => setActiveTab('details')} icon={<FileText size={16} />} label="Overview" />
-          <TabButton active={activeTab === 'comments'} onClick={() => setActiveTab('comments')} icon={<MessageSquare size={16} />} label="Comments" count={job.commentsCount || comments.length} />
-          <TabButton active={activeTab === 'files'} onClick={() => setActiveTab('files')} icon={<Paperclip size={16} />} label="Attachments" count={attachments.length} />
-          <TabButton active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<History size={16} />} label="History" />
+        <div className="flex px-5 bg-white/40 border-b border-white/20 backdrop-blur-sm">
+          <TabButton active={activeTab === 'details'} onClick={() => setActiveTab('details')} icon={<FileText size={14} />} label="Overview" />
+          <TabButton active={activeTab === 'comments'} onClick={() => setActiveTab('comments')} icon={<MessageSquare size={14} />} label="Comments" count={job.commentsCount || comments.length} />
+          <TabButton active={activeTab === 'files'} onClick={() => setActiveTab('files')} icon={<Paperclip size={14} />} label="Attachments" count={attachments.length} />
+          <TabButton active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<History size={14} />} label="History" />
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-8 bg-slate-50/30 scrollbar-thin scrollbar-thumb-slate-200/50">
+        <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30 scrollbar-thin scrollbar-thumb-slate-200/50">
           
           {activeTab === 'details' && (
             <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
@@ -380,7 +530,7 @@ const TabButton = ({ active, onClick, icon, label, count }: any) => (
   <button 
     onClick={onClick}
     className={`
-      flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-[3px] transition-all relative
+      flex items-center gap-2 px-5 py-3 text-xs font-bold border-b-[3px] transition-all relative
       ${active 
         ? 'border-blue-500 text-blue-600 bg-blue-50/50' 
         : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50/50'}
@@ -389,7 +539,7 @@ const TabButton = ({ active, onClick, icon, label, count }: any) => (
     {icon}
     {label}
     {count > 0 && (
-       <span className={`px-2 py-0.5 rounded-full text-[10px] bg-slate-200 text-slate-600 ${active ? 'bg-blue-100 text-blue-700' : ''}`}>
+       <span className={`px-1.5 py-0.5 rounded-full text-[9px] bg-slate-200 text-slate-600 ${active ? 'bg-blue-100 text-blue-700' : ''}`}>
          {count}
        </span>
     )}
@@ -423,6 +573,24 @@ const ProgressBar = ({ label, progress, color }: any) => (
       <div className={`h-full rounded-full bg-gradient-to-r ${color} shadow-sm transition-all duration-500`} style={{ width: `${progress}%` }} />
     </div>
   </div>
+);
+
+const SliderControl = ({ label, value, onChange, disabled, color }: any) => (
+    <div className={`transition-opacity ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+        <div className="flex justify-between mb-1.5">
+            <span className={`text-xs font-bold uppercase tracking-wider ${disabled ? 'text-slate-400' : 'text-slate-600'}`}>{label}</span>
+            <span className={`text-xs font-black ${disabled ? 'text-slate-400' : color}`}>{value}%</span>
+        </div>
+        <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            value={value} 
+            onChange={(e) => onChange(parseInt(e.target.value))}
+            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-current" 
+            style={{ accentColor: 'currentColor' }} 
+        />
+    </div>
 );
 
 export default JobCardDetailModal;

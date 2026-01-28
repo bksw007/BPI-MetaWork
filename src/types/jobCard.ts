@@ -71,6 +71,15 @@ export interface JobCard {
   assignees: string[]; // User IDs or Names
   tags?: string[];
   
+  // New Fields for Enhanced Workflow
+  consignee?: string;
+  mode?: string;
+  siQty?: number;
+  jobsheetNo?: string;
+  referenceNo?: string;
+  remark?: string;
+  createdBy?: string;
+  
   // Advanced Features
   version: number; // For optimistic locking / conflict resolution
   attachments: Attachment[];

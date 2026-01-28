@@ -9,7 +9,6 @@ interface KanbanColumnProps {
   jobs: JobCard[];
   color: string;
   onJobClick: (job: JobCard) => void;
-  onJobMove?: (job: JobCard) => void;
 }
 
 const KanbanColumn: React.FC<KanbanColumnProps> = ({ 
@@ -17,8 +16,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   title, 
   jobs, 
   color, 
-  onJobClick,
-  onJobMove 
+  onJobClick
 }) => {
   return (
     <div className="flex flex-col min-w-[280px] w-full md:w-[280px] h-full max-h-full">
@@ -40,12 +38,11 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
       {/* Column Content */}
       <div className="flex-1 overflow-y-auto p-2 bg-slate-50/30 rounded-b-xl border border-slate-100 custom-scrollbar">
         {jobs.length > 0 ? (
-          jobs.map(job => (
+            jobs.map(job => (
             <JobCardItem 
               key={job.id} 
               job={job} 
               onClick={onJobClick} 
-              onMove={onJobMove}
             />
           ))
         ) : (

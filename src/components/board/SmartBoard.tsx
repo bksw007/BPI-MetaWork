@@ -65,7 +65,6 @@ const SmartBoard: React.FC = () => {
     { id: 'OnProcess', title: 'On Process', color: 'border-blue-500' },
     { id: 'Waiting', title: 'Waiting', color: 'border-orange-500' },
     { id: 'Complete', title: 'Complete', color: 'border-green-500' },
-    { id: 'Report', title: 'Report', color: 'border-purple-500' },
   ];
 
   const handleJobClick = (job: JobCard) => {
@@ -117,6 +116,14 @@ const SmartBoard: React.FC = () => {
     };
   }, [jobs]);
 
+  const handleUpdateStatus = async (jobId: string, newStatus: JobStatus) => {
+    try {
+        await moveJobCard(jobId, newStatus, undefined, 'current-user');
+    } catch (error) {
+        console.error("Failed to update status", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -127,78 +134,79 @@ const SmartBoard: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Stats Header */}
-      {/* Stats Header */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        {/* Allocated */}
-        <div className="px-5 py-3 flex items-center justify-between bg-white/40 border border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.1)] backdrop-blur-2xl rounded-[30px] hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] transition-all duration-300 group">
-            <div className="flex items-center gap-3">
-                 <div className="p-3 rounded-2xl bg-white/80 text-blue-600 shadow-sm">
-                    <LayoutGrid size={20} />
-                 </div>
-                 <span className="text-base font-bold text-slate-700">Allocated</span>
+      {/* Stats Header - Adjusted padding to exactly 50px as requested */}
+      <div className="px-[50px] mb-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            {/* Allocated */}
+            <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-white/80 text-blue-600 shadow-sm">
+                        <LayoutGrid size={16} />
+                    </div>
+                    <span className="text-sm font-bold text-slate-700">Allocated</span>
+                </div>
+                <span className="text-xl font-black text-slate-800">{stats.allocated}</span>
             </div>
-            <span className="text-2xl font-black text-slate-800">{stats.allocated}</span>
-        </div>
 
-        {/* On Processing */}
-        <div className="px-5 py-3 flex items-center justify-between bg-white/40 border border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.1)] backdrop-blur-2xl rounded-[30px] hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] transition-all duration-300 group">
-            <div className="flex items-center gap-3">
-                 <div className="p-3 rounded-2xl bg-white/80 text-indigo-600 shadow-sm">
-                    <PlayCircle size={20} />
-                 </div>
-                 <span className="text-base font-bold text-slate-700">On Process</span>
+            {/* On Processing */}
+            <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-white/80 text-indigo-600 shadow-sm">
+                        <PlayCircle size={16} />
+                    </div>
+                    <span className="text-sm font-bold text-slate-700">On Process</span>
+                </div>
+                <span className="text-xl font-black text-slate-800">{stats.onProcess}</span>
             </div>
-            <span className="text-2xl font-black text-slate-800">{stats.onProcess}</span>
-        </div>
 
-        {/* Waiting JS */}
-        <div className="px-5 py-3 flex items-center justify-between bg-white/40 border border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.1)] backdrop-blur-2xl rounded-[30px] hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] transition-all duration-300 group">
-            <div className="flex items-center gap-3">
-                 <div className="p-3 rounded-2xl bg-white/80 text-amber-600 shadow-sm">
-                    <Clock size={20} />
-                 </div>
-                 <span className="text-base font-bold text-slate-700">Waiting JS</span>
+            {/* Waiting JS */}
+            <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-white/80 text-amber-600 shadow-sm">
+                        <Clock size={16} />
+                    </div>
+                    <span className="text-sm font-bold text-slate-700">Waiting JS</span>
+                </div>
+                <span className="text-xl font-black text-slate-800">{stats.waiting}</span>
             </div>
-            <span className="text-2xl font-black text-slate-800">{stats.waiting}</span>
-        </div>
 
-         {/* High Priority */}
-         <div className="px-5 py-3 flex items-center justify-between bg-white/40 border border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.1)] backdrop-blur-2xl rounded-[30px] hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] transition-all duration-300 group">
-             <div className="flex items-center gap-3">
-                 <div className="p-3 rounded-2xl bg-white/80 text-red-600 shadow-sm">
-                    <AlertTriangle size={20} />
-                 </div>
-                 <span className="text-base font-bold text-slate-700">High Priority</span>
+            {/* High Priority */}
+            <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-white/80 text-red-600 shadow-sm">
+                        <AlertTriangle size={16} />
+                    </div>
+                    <span className="text-sm font-bold text-slate-700">High Priority</span>
+                </div>
+                <span className="text-xl font-black text-red-600">{stats.highPriority}</span>
             </div>
-            <span className="text-2xl font-black text-red-600">{stats.highPriority}</span>
-        </div>
 
-         {/* Due Today */}
-         <div className="px-5 py-3 flex items-center justify-between bg-white/40 border border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.1)] backdrop-blur-2xl rounded-[30px] hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] transition-all duration-300 group">
-            <div className="flex items-center gap-3">
-                 <div className="p-3 rounded-2xl bg-white/80 text-orange-600 shadow-sm">
-                    <Calendar size={20} />
-                 </div>
-                 <span className="text-base font-bold text-slate-700">Due Today</span>
+            {/* Due Today */}
+            <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-white/80 text-orange-600 shadow-sm">
+                        <Calendar size={16} />
+                    </div>
+                    <span className="text-sm font-bold text-slate-700">Due Today</span>
+                </div>
+                <span className="text-xl font-black text-orange-600">{stats.dueToday}</span>
             </div>
-            <span className="text-2xl font-black text-orange-600">{stats.dueToday}</span>
         </div>
       </div>
 
       {/* Board Columns */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4">
-        <div className="flex h-full gap-4 w-fit min-w-full px-1">
+      <div className="flex-1 overflow-auto pb-0">
+        <div className="flex h-full gap-4 w-fit min-w-full px-[50px]">
           {columns.map(col => (
-            <KanbanColumn
-              key={col.id}
-              status={col.id}
-              title={col.title}
-              color={col.color}
-              jobs={jobs.filter(j => j.status === col.id)}
-              onJobClick={handleJobClick}
-              onJobMove={handleJobMove}
-            />
+            <div key={col.id} className="h-full flex flex-col">
+                <KanbanColumn
+                status={col.id}
+                title={col.title}
+                color={col.color}
+                jobs={jobs.filter(j => j.status === col.id)}
+                onJobClick={handleJobClick}
+                />
+            </div>
           ))}
         </div>
       </div>
@@ -208,7 +216,7 @@ const SmartBoard: React.FC = () => {
          <JobCardDetailModal 
             job={selectedJob} 
             onClose={() => setSelectedJob(null)} 
-            onUpdateStatus={(status) => console.log('Update status', status)}
+            onUpdateStatus={(status) => handleUpdateStatus(selectedJob.id, status)}
          />
        )}
     </div>

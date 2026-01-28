@@ -5,10 +5,9 @@ import { JobCard, JobStatus, ProcessPhase } from '../../types/jobCard';
 interface JobCardItemProps {
   job: JobCard;
   onClick: (job: JobCard) => void;
-  onMove?: (job: JobCard) => void; 
 }
 
-const JobCardItem: React.FC<JobCardItemProps> = ({ job, onClick, onMove }) => {
+const JobCardItem: React.FC<JobCardItemProps> = ({ job, onClick }) => {
   const isHighPriority = job.priority === 'High';
   const isDueSoon = new Date(job.dueDate) < new Date(Date.now() + 24 * 60 * 60 * 1000); // Less than 24h
 
@@ -82,16 +81,6 @@ const JobCardItem: React.FC<JobCardItemProps> = ({ job, onClick, onMove }) => {
           <span>{new Date(job.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
         </div>
       </div>
-      
-      {/* Quick Actions (Appear on Hover) */}
-      {onMove && (
-         <button 
-           onClick={(e) => { e.stopPropagation(); onMove(job); }}
-           className="absolute top-2 right-2 p-1 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-full opacity-0 group-hover:opacity-100 transition-all"
-         >
-           <MoreHorizontal size={16} />
-         </button>
-      )}
     </div>
   );
 };

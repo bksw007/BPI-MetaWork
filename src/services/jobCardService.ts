@@ -11,8 +11,9 @@ import {
   runTransaction,
   serverTimestamp
 } from 'firebase/firestore';
-import { db } from '../config/firebase';
-import { JobCard, AuditLog, JobStatus, ProcessPhase } from '../types/jobCard';
+import { db, storage } from '../config/firebase';
+import { JobCard, AuditLog, JobStatus, ProcessPhase, Attachment, Comment } from '../types/jobCard';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 const COLLECTION = 'jobCards';
 const AUDIT_COLLECTION = 'auditLogs';
@@ -58,7 +59,7 @@ export const subscribeToJobCards = (callback: (jobs: JobCard[]) => void, onError
   );
 };
 
-export const createJobCard = async (jobData: Omit<JobCard, 'id' | 'createdAt' | 'updatedAt' | 'version' | 'commentsCount' | 'attachments'>, userId: string) => {
+export const createJobCard = async (jobData: Omit<JobCard, 'id' | 'createdAt' | 'updatedAt' | 'version' | 'commentsCount' | 'attachments' | 'status' | 'phaseProgress'>, userId: string) => {
   const newJob: Omit<JobCard, 'id'> = {
     ...jobData,
     version: 1,
@@ -71,6 +72,12 @@ export const createJobCard = async (jobData: Omit<JobCard, 'id' | 'createdAt' | 
       processData: 0,
       storage: 0
     },
+    // Initialize new fields
+    consignee: jobData.consignee || '',
+    mode: jobData.mode || '',
+    siQty: jobData.siQty || 0,
+    remark: jobData.remark || '',
+    createdBy: userId, // Track who created it
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -117,6 +124,50 @@ export const moveJobCard = async (jobId: string, newStatus: JobStatus, newPhase:
 
   await createAuditLog(jobId, 'move', userId, { 
     newValue: { status: newStatus, phase: newPhase } 
+  });
+};
+
+export const reverseJobCard = async (job: JobCard, userId: string) => {
+  const jobRef = doc(db, COLLECTION, job.id);
+  
+  // Logic to determine previous status
+  // Allocated <- OnProcess <- Waiting <- Finish
+  // Reset critical fields when reversing
+  let prevStatus: JobStatus = 'Allocated';
+  let prevPhase: ProcessPhase | undefined = undefined;
+  const updates: Partial<JobCard> = {};
+
+  if (job.status === 'OnProcess') {
+     prevStatus = 'Allocated';
+     // Reset progress
+     updates.phaseProgress = { picking: 0, packing: 0, processData: 0, storage: 0 };
+     updates.currentPhase = undefined;
+  } else if (job.status === 'Waiting') {
+     prevStatus = 'OnProcess';
+     // Reset to last phase of OnProcess but reset its progress? 
+     // Requirement: "Reset progress of current, previous, and involved steps to 0"
+     // So we send it back to OnProcess (Start), with 0 progress.
+     updates.phaseProgress = { picking: 0, packing: 0, processData: 0, storage: 0 };
+     prevPhase = 'Picking'; // Start Over
+  } else if (job.status === 'Complete' || job.status === 'Report') {
+     prevStatus = 'Waiting';
+     // Reset Waiting fields
+     updates.jobsheetNo = '';
+     updates.referenceNo = '';
+  }
+
+  await updateDoc(jobRef, {
+    status: prevStatus,
+    currentPhase: prevPhase,
+    ...updates,
+    updatedAt: new Date().toISOString()
+  });
+
+  await createAuditLog(job.id, 'move', userId, { 
+    action: 'reverse', // Custom note in details if needed, or just use 'move' type
+    oldValue: job.status,
+    newValue: prevStatus,
+    details: 'Reversed status and reset progress'
   });
 };
 
@@ -191,9 +242,6 @@ export const subscribeToComments = (
 };
 
 // ==================== ATTACHMENTS ====================
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { storage } from '../config/firebase';
-import { Attachment, Comment } from '../types/jobCard';
 
 export const uploadAttachment = async (
   jobId: string,
