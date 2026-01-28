@@ -4,7 +4,7 @@ import JobCardItem from './JobCardItem';
 import { Plus } from 'lucide-react';
 
 interface KanbanColumnProps {
-  status: JobStatus;
+  status: JobStatus | string;
   title: string;
   jobs: JobCard[];
   color: string;
@@ -26,13 +26,10 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
           <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wide">
             {title}
           </h3>
-          <span className="bg-slate-200/50 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-full">
-            {jobs.length}
-          </span>
         </div>
-        <button className="text-slate-400 hover:text-slate-600 transition-colors">
-          <Plus size={16} />
-        </button>
+        <span className="bg-white/60 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm border border-white/50">
+           {jobs.length}
+        </span>
       </div>
 
       {/* Column Content */}

@@ -10,7 +10,8 @@ import PendingPage from './src/pages/PendingPage';
 import UserProfilePage from './src/pages/UserProfilePage';
 import AdminProfilePage from './src/pages/AdminProfilePage';
 import DashboardPage from './src/pages/DashboardPage';
-import SmartBoardPage from './src/pages/SmartBoardPage';
+import KanbanBoardPage from './src/pages/KanbanBoardPage';
+import ActivityReportPage from './src/pages/ActivityReportPage';
 import FirebaseTest from './src/components/FirebaseTest';
 
 const App: React.FC = () => {
@@ -41,9 +42,9 @@ const App: React.FC = () => {
             <DashboardPage />
           </ProtectedRoute>
         } />
-        <Route path="/smart-board" element={
+        <Route path="/kanban" element={
           <ProtectedRoute>
-            <SmartBoardPage />
+            <KanbanBoardPage />
           </ProtectedRoute>
         } />
         <Route path="/profile" element={
@@ -54,6 +55,11 @@ const App: React.FC = () => {
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminProfilePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/report" element={
+          <ProtectedRoute>
+            <ActivityReportPage />
           </ProtectedRoute>
         } />
 

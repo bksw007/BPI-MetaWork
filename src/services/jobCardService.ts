@@ -12,7 +12,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db, storage } from '../config/firebase';
-import { JobCard, AuditLog, JobStatus, ProcessPhase, Attachment, Comment } from '../types/jobCard';
+import { JobCard, AuditLog, JobStatus, ProcessPhase, Attachment, Comment, AppUser } from '../types/jobCard';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 const COLLECTION = 'jobCards';
@@ -42,14 +42,18 @@ export const subscribeToJobCards = (callback: (jobs: JobCard[]) => void, onError
   const q = query(
     collection(db, COLLECTION), 
     orderBy('updatedAt', 'desc')
+    // Note: We'll filter isDeleted client-side or add a compound index later if needed.
+    // For now, client-side filtering is safer without index creation delays.
   );
 
   return onSnapshot(q, 
     (snapshot) => {
-      const jobs = snapshot.docs.map(doc => ({ 
-        id: doc.id, 
-        ...doc.data() 
-      } as JobCard));
+      const jobs = snapshot.docs
+        .map(doc => ({ 
+          id: doc.id, 
+          ...doc.data() 
+        } as JobCard))
+        .filter(job => !job.isDeleted); // Client-side Soft Delete Filter
       callback(jobs);
     },
     (error) => {
@@ -57,6 +61,17 @@ export const subscribeToJobCards = (callback: (jobs: JobCard[]) => void, onError
       if (onError) onError(error);
     }
   );
+};
+
+export const subscribeToUsers = (callback: (users: AppUser[]) => void) => {
+  const q = query(collection(db, 'users'));
+
+  return onSnapshot(q, (snapshot) => {
+    const users = snapshot.docs
+      .map(doc => ({ ...doc.data() } as AppUser))
+      .filter(user => user.status === 'approved');
+    callback(users);
+  });
 };
 
 export const createJobCard = async (jobData: Omit<JobCard, 'id' | 'createdAt' | 'updatedAt' | 'version' | 'commentsCount' | 'attachments' | 'status' | 'phaseProgress'>, userId: string) => {
@@ -129,51 +144,73 @@ export const moveJobCard = async (jobId: string, newStatus: JobStatus, newPhase:
 
 export const reverseJobCard = async (job: JobCard, userId: string) => {
   const jobRef = doc(db, COLLECTION, job.id);
+  const phases: ProcessPhase[] = ['Picking', 'Packing', 'ProcessData', 'Storage'];
   
-  // Logic to determine previous status
-  // Allocated <- OnProcess <- Waiting <- Finish
-  // Reset critical fields when reversing
-  let prevStatus: JobStatus = 'Allocated';
-  let prevPhase: ProcessPhase | undefined = undefined;
+  let nextStatus: JobStatus = job.status;
+  let nextPhase: ProcessPhase | undefined = job.currentPhase;
   const updates: Partial<JobCard> = {};
 
   if (job.status === 'OnProcess') {
-     prevStatus = 'Allocated';
-     // Reset progress
-     updates.phaseProgress = { picking: 0, packing: 0, processData: 0, storage: 0 };
-     updates.currentPhase = undefined;
+    const currentIdx = phases.indexOf(job.currentPhase || 'Picking');
+    if (currentIdx > 0) {
+      // Reverse to previous phase (e.g., Making Data -> Packing)
+      nextPhase = phases[currentIdx - 1];
+      nextStatus = 'OnProcess';
+      
+      // Reset logic: Current and all future phases become 0
+      const newProgress = { ...job.phaseProgress };
+      const keys: (keyof typeof job.phaseProgress)[] = ['picking', 'packing', 'processData', 'storage'];
+      keys.forEach((key, idx) => {
+        if (idx >= currentIdx - 1) newProgress[key] = 0;
+        else newProgress[key] = 100;
+      });
+      updates.phaseProgress = newProgress;
+    } else {
+      // At Picking, reverse to Allocated
+      nextStatus = 'Allocated';
+      nextPhase = undefined;
+      updates.phaseProgress = { picking: 0, packing: 0, processData: 0, storage: 0 };
+    }
   } else if (job.status === 'Waiting') {
-     prevStatus = 'OnProcess';
-     // Reset to last phase of OnProcess but reset its progress? 
-     // Requirement: "Reset progress of current, previous, and involved steps to 0"
-     // So we send it back to OnProcess (Start), with 0 progress.
-     updates.phaseProgress = { picking: 0, packing: 0, processData: 0, storage: 0 };
-     prevPhase = 'Picking'; // Start Over
+    // Reverse to last phase of OnProcess (Storage)
+    nextStatus = 'OnProcess';
+    nextPhase = 'Storage';
+    updates.phaseProgress = { picking: 100, packing: 100, processData: 100, storage: 0 };
+    // Clear waiting-specific fields
+    updates.jobsheetNo = '';
+    updates.referenceNo = '';
   } else if (job.status === 'Complete' || job.status === 'Report') {
-     prevStatus = 'Waiting';
-     // Reset Waiting fields
-     updates.jobsheetNo = '';
-     updates.referenceNo = '';
+    // Standard status rollback
+    nextStatus = 'Waiting';
+    nextPhase = undefined;
   }
 
   await updateDoc(jobRef, {
-    status: prevStatus,
-    currentPhase: prevPhase,
+    status: nextStatus,
+    currentPhase: nextPhase,
     ...updates,
     updatedAt: new Date().toISOString()
   });
 
   await createAuditLog(job.id, 'move', userId, { 
-    action: 'reverse', // Custom note in details if needed, or just use 'move' type
     oldValue: job.status,
-    newValue: prevStatus,
-    details: 'Reversed status and reset progress'
+    newValue: nextStatus,
+    details: `Reversed to ${nextStatus}${nextPhase ? ` (${nextPhase})` : ''}`
   });
 };
 
 export const deleteJobCard = async (jobId: string, userId: string) => {
-  await deleteDoc(doc(db, COLLECTION, jobId));
-  // Note: Subcollections like auditLogs might need manual cleanup or handle via Cloud Functions
+  // Soft Delete: Mark as deleted to preserve Audit Logs
+  const jobRef = doc(db, COLLECTION, jobId);
+  
+  await updateDoc(jobRef, {
+    isDeleted: true,
+    updatedAt: new Date().toISOString()
+  });
+
+  await createAuditLog(jobId, 'delete', userId, {
+    details: 'Soft deleted (Moved to Trash)'
+  });
 };
 
 // ==================== COMMENTS ====================

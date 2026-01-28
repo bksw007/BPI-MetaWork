@@ -13,6 +13,21 @@ export type ProcessPhase =
 
 export type PriorityLevel = 'Standard' | 'High';
 
+export interface AppUser {
+  uid: string;
+  email: string;
+  displayName: string;
+  photoURL?: string | null;
+  role: 'admin' | 'user';
+  status: 'pending' | 'approved';
+}
+
+export interface Assignee {
+  uid: string;
+  name: string;
+  photoURL?: string | null;
+}
+
 export interface Attachment {
   id: string;
   name: string;
@@ -42,6 +57,7 @@ export interface AuditLog {
   newValue?: any;
   performedBy: string; // User Name or ID
   timestamp: string;
+  details?: string; // Generic details/notes
 }
 
 export interface JobCard {
@@ -68,7 +84,7 @@ export interface JobCard {
 
   // Metadata
   priority: PriorityLevel;
-  assignees: string[]; // User IDs or Names
+  assignees: Assignee[]; // Structured assignees with photoURL
   tags?: string[];
   
   // New Fields for Enhanced Workflow
@@ -87,4 +103,5 @@ export interface JobCard {
   
   createdAt: string;
   updatedAt: string;
+  isDeleted?: boolean; // Soft Delete flag
 }

@@ -1,12 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UnifiedNavbar from '../components/UnifiedNavbar';
-import SmartBoard from '../components/board/SmartBoard';
-import { KanbanSquare, Plus, Sparkles } from 'lucide-react';
+import KanbanBoard from '../components/board/KanbanBoard';
+import GanttView from '../components/board/GanttView';
+import { KanbanSquare, Plus, Sparkles, LayoutGrid, CalendarRange } from 'lucide-react';
 import NewJobCardForm from '../components/board/NewJobCardForm';
-import { createJobCard } from '../services/jobCardService';
+import { createJobCard, subscribeToJobCards } from '../services/jobCardService';
+import { JobCard } from '../types/jobCard';
 
-const SmartBoardPage: React.FC = () => {
+import { useAuth } from '../contexts/AuthContext';
+
+const KanbanBoardPage: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const { user, userProfile } = useAuth();
+  
+  // View State
+  const [viewMode, setViewMode] = useState<'kanban' | 'gantt'>('kanban');
+  const [jobs, setJobs] = useState<JobCard[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Data Subscription (Hoisted)
+  useEffect(() => {
+    console.log("Initializing KanbanBoardPage Subscription...");
+    const unsubscribe = subscribeToJobCards(
+      (data) => {
+        setJobs(data);
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error("Subscription failed:", error);
+        setIsLoading(false);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
 
   const handleCreateJob = async (record: any) => {
     try {
@@ -24,8 +50,9 @@ const SmartBoardPage: React.FC = () => {
           assignees: record.assignees,
           remark: record.remark
         };
-        // userId is hardcoded for now as demo-user
-        await createJobCard(jobData, 'demo-user');
+        
+        const userId = user?.uid || 'anonymous';
+        await createJobCard(jobData, userId);
         setShowAddModal(false);
     } catch (error) {
         console.error("Failed to create job", error);
@@ -36,9 +63,33 @@ const SmartBoardPage: React.FC = () => {
     <div className="h-screen flex flex-col bg-gradient-kanban overflow-hidden">
       {/* Unified Navigation Header */}
       <UnifiedNavbar>
-         <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 text-orange-500 rounded-lg text-sm font-medium mr-2">
-            <KanbanSquare className="w-4 h-4" />
-            Smart Board
+         <div className="flex items-center gap-1 mr-4">
+            <button 
+                onClick={() => setViewMode('kanban')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    viewMode === 'kanban' 
+                    ? 'bg-orange-50 text-orange-500' 
+                    : 'text-slate-900 hover:text-orange-500 hover:bg-orange-50'
+                }`}
+            >
+                <KanbanSquare className="w-4 h-4" />
+                Kanban
+            </button>
+            <button 
+                onClick={() => setViewMode('gantt')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    viewMode === 'gantt' 
+                    ? 'bg-orange-50 text-orange-500' 
+                    : 'text-slate-900 hover:text-orange-500 hover:bg-orange-50'
+                }`}
+            >
+                <CalendarRange className="w-4 h-4" />
+                Timeline
+            </button>
+            <a href="/report" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all text-slate-900 hover:text-orange-500 hover:bg-orange-50`}>
+                <LayoutGrid className="w-4 h-4" />
+                Report
+            </a>
          </div>
       </UnifiedNavbar>
 
@@ -46,10 +97,15 @@ const SmartBoardPage: React.FC = () => {
         {/* Board Title Area - Adjusted padding to exactly 50px as requested */}
         <div className="px-[50px] mb-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">Smart Board</h2>
-                    <p className="text-slate-500 text-sm mt-1">Manage packing jobs efficiently.</p>
+                <div className="flex items-center gap-6">
+                    <div>
+                        <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+                            {viewMode === 'kanban' ? 'Kanban Board' : 'Project Timeline'}
+                        </h2>
+                        <p className="text-slate-500 text-sm mt-1">Manage packing jobs efficiently.</p>
+                    </div>
                 </div>
+
                 {/* Add Job Button - Pastel & Glass Theme */}
                 <button 
                     onClick={() => setShowAddModal(true)}
@@ -63,7 +119,13 @@ const SmartBoardPage: React.FC = () => {
 
         {/* Board Content */}
         <div className="flex-1 min-h-0">
-             <SmartBoard />
+             {viewMode === 'kanban' ? (
+                 <KanbanBoard externalJobs={jobs} externalIsLoading={isLoading} />
+             ) : (
+                 <div className="h-full px-[50px] pb-6">
+                     <GanttView jobs={jobs} isLoading={isLoading} />
+                 </div>
+             )}
         </div>
       </main>
 
@@ -109,5 +171,5 @@ const SmartBoardPage: React.FC = () => {
   );
 };
 
-export default SmartBoardPage;
+export default KanbanBoardPage;
 

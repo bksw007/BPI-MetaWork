@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is approved
+    function isApproved() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ============================
+    // Users Collection (ของเดิม)
+    // ============================
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow update: if request.auth != null && (
+        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])) || 
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ============================
+    // Packing Records (Dashboard)
+    // ============================
+    match /packingRecords/{recordId} {
+      allow read, create, update: if isApproved();
+      allow delete: if isAdmin();
+    }
+
+    // ============================
+    // Smart Board Collections (เพิ่มใหม่!!!)
+    // ============================
+    match /jobCards/{jobId} {
+      // อนุญาตให้ User ที่ Approved แล้ว อ่าน/เขียน/ลบ Job ได้
+      allow read, create, update: if isApproved();
+      allow delete: if isApproved(); 
+      
+      // Subcollection: Audit Logs
+      match /auditLogs/{logId} {
+        allow read, create: if isApproved();
+        allow update, delete: if false; // Audit logs should be immutable
+      }
+
+      // Subcollection: Comments
+      match /comments/{commentId} {
+        allow read, create: if isApproved();
+        allow update, delete: if isApproved();
+      }
+    }
+  }
+}

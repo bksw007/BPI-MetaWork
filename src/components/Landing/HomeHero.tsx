@@ -107,7 +107,7 @@ const HomeHero: React.FC = () => {
           {/* Stats preview with icons */}
           <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
             <button 
-              onClick={() => navigate('/smart-board')}
+              onClick={() => navigate('/kanban')}
               className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md border border-lavender-200/50 hover:bg-white/80 hover:shadow-lg hover:border-lavender-300 transition-all cursor-pointer"
             >
               <Kanban className="w-8 h-8 text-lavender-500 mx-auto mb-2" />

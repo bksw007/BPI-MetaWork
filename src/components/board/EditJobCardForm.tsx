@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Save, X, Info, ChevronDown, Sparkles, Plus } from 'lucide-react';
-import { AppUser, Assignee } from '../../types/jobCard';
+import { Save, X, Info, ChevronDown, Sparkles, Plus, Trash2 } from 'lucide-react';
+import { JobCard, AppUser, Assignee } from '../../types/jobCard';
 import { subscribeToUsers } from '../../services/jobCardService';
 
-interface NewJobCardFormProps {
-  onSave: (record: any) => Promise<void> | void;
+interface EditJobCardFormProps {
+  job: JobCard;
+  onSave: (updates: Partial<JobCard>) => Promise<void> | void;
   onCancel: () => void;
+  onDelete?: () => void;
   existingCustomers?: string[];
   existingProducts?: string[];
   isDarkMode?: boolean;
@@ -99,9 +101,11 @@ const CreatableSelect: React.FC<CreatableSelectProps> = ({
 };
 
 
-const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
+const EditJobCardForm: React.FC<EditJobCardFormProps> = ({
+  job,
   onSave,
   onCancel,
+  onDelete,
   existingCustomers = ['FMT', 'Panasonic', 'Hoei'],
   existingProducts = ['Inverter', 'Tempresure control', 'Solder', 'Switch'],
   isDarkMode
@@ -119,18 +123,19 @@ const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
     return () => unsub();
   }, []);
 
+  // Initial State filled from Job
   const [formData, setFormData] = useState({
-    startDate: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD in Local Time
-    dueDate: new Date().toLocaleDateString('en-CA'),
-    customer: '',
-    product: '',
-    consignee: '',
-    mode: '',
-    siQty: 0,
-    jobQty: 0, 
-    priority: 'Standard',
-    assignees: [] as Assignee[],
-    remark: ''
+    startDate: job.startDate.split('T')[0],
+    dueDate: job.dueDate.split('T')[0],
+    customer: job.customer || '',
+    product: job.product || '',
+    consignee: job.consignee || '',
+    mode: job.mode || '',
+    siQty: job.siQty || 0,
+    jobQty: job.jobQty || 0, // Total Product QTY
+    priority: job.priority || 'Standard',
+    assignees: (job.assignees as any[])?.map(a => typeof a === 'string' ? { uid: a, name: a } : a) as Assignee[] || [],
+    remark: job.description || '' // Map description to remark
   });
   
   const [isSaving, setIsSaving] = useState(false);
@@ -149,6 +154,23 @@ const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Update effect if job changes while open (e.g. from background subscription)
+  useEffect(() => {
+      setFormData({
+        startDate: job.startDate.split('T')[0],
+        dueDate: job.dueDate.split('T')[0],
+        customer: job.customer || '',
+        product: job.product || '',
+        consignee: job.consignee || '',
+        mode: job.mode || '',
+        siQty: job.siQty || 0,
+        jobQty: job.jobQty || 0,
+        priority: job.priority || 'Standard',
+        assignees: (job.assignees as any[])?.map(a => typeof a === 'string' ? { uid: a, name: a } : a) as Assignee[] || [],
+        remark: job.description || ''
+      });
+  }, [job.id]); // Only re-run if ID changes to avoid reset bugs while typing
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
@@ -159,9 +181,9 @@ const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
 
   const toggleAssignee = (user: AppUser) => {
       setFormData(prev => {
-          const exists = prev.assignees.some(a => a.uid === user.uid);
+          const exists = prev.assignees.some(a => a.uid === user.uid || a.name === user.displayName);
           if (exists) {
-              return { ...prev, assignees: prev.assignees.filter(a => a.uid !== user.uid) };
+              return { ...prev, assignees: prev.assignees.filter(a => a.uid !== user.uid && a.name !== user.displayName) };
           } else {
               if (prev.assignees.length >= 5) return prev; // Limit to 5
               return { 
@@ -176,34 +198,28 @@ const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
       });
   };
 
+  const getInitials = (name: string) => name.substring(0, 2).toUpperCase();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    
-    // 1. Show Success Animation First (Optimistic UI)
     setShowSuccess(true);
-
-    // 2. Wait for animation
+    
     setTimeout(async () => {
         try {
             await onSave({
                 ...formData,
-                Date: formData.startDate,
-                QTY: formData.jobQty,
-                Product: formData.product,
-                Shipment: formData.customer
+                startDate: formData.startDate,
+                dueDate: formData.dueDate,
+                description: formData.remark
             });
-            // onSave logic in parent should handle closing modall
         } catch (error) {
-            console.error("Failed to create", error);
+            console.error("Failed to update", error);
             setIsSaving(false);
-            setShowSuccess(false); // Revert if failed
+            setShowSuccess(false);
         }
-    }, 700); 
+    }, 700);
   };
-  
-  // Helper to generate initials
-  const getInitials = (name: string) => name.substring(0, 2).toUpperCase();
 
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-300 relative">
@@ -217,12 +233,18 @@ const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
                     </svg>
                     </div>
                     <h2 className="text-2xl font-black text-slate-800 drop-shadow-sm uppercase tracking-wider animate-pulse">
-                    Created!!
+                    Saved!!
                     </h2>
                 </div>
             </div>
          </div>
       )}
+      <div className="mb-6 pb-4 border-b border-white/30">
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <Sparkles className="text-blue-500" size={20} /> Edit Job Details
+          </h2>
+          <p className="text-sm text-slate-500">Update the job information below.</p>
+      </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
           <div className="space-y-0">
@@ -405,7 +427,7 @@ const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
                             <div className="text-[10px] text-slate-400 px-3 py-2 italic text-center">No approved users found.</div>
                         )}
                         {availableUsers.map(user => {
-                            const isSelected = formData.assignees.some(a => a.uid === user.uid);
+                            const isSelected = formData.assignees.some(a => a.uid === user.uid || a.name === user.displayName);
                             return (
                                 <button
                                     key={user.uid}
@@ -433,7 +455,7 @@ const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
                  )}
               </div>
 
-              {/* Row 2, Col 2-4: Remark */}
+              {/* Row 2, Col 2-4: Remark (Span 3 - fills the rest) */}
               <div className="col-span-3 space-y-0">
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Remark</label>
                   <input
@@ -450,25 +472,34 @@ const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
           </div>
 
 
-        <div className="md:col-span-2 flex items-center gap-3 pt-2 mt-2">
+        <div className="md:col-span-2 flex items-center gap-3 pt-4 border-t border-white/30 mt-4">
+             {onDelete && job.status === 'Allocated' && (
+                 <button 
+                     type="button" 
+                     onClick={onDelete}
+                     className="bg-red-50 hover:bg-red-100 text-red-500 font-bold h-[48px] px-6 rounded-xl transition-all text-sm flex items-center gap-2"
+                 >
+                     <Trash2 size={16} /> Delete
+                 </button>
+             )}
              <button 
                  type="submit"
                  disabled={isSaving}
-                 className="flex-1 bg-[#818cf8] hover:bg-[#6366f1] text-white font-bold h-[42px] px-6 rounded-xl shadow-[0_4px_20px_-2px_rgba(129,140,248,0.5)] hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                 className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold h-[48px] px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
              >
                   {isSaving ? (
-                    'Creating...'
+                    'Saving Changes...'
                   ) : (
-                    <span className="flex items-center justify-center gap-2">
-                        <Sparkles className="w-4 h-4" />
-                        Create Job Card
-                    </span>
+                    <>
+                        <Save className="w-4 h-4" />
+                        Save Changes
+                    </>
                   )}
               </button>
              <button 
                  type="button" 
                  onClick={onCancel}
-                 className="bg-white/20 hover:bg-white/50 text-slate-700 font-bold h-[42px] px-6 rounded-xl border border-white/20 transition-all text-sm"
+                 className="bg-white/50 hover:bg-red-50 hover:text-red-500 text-slate-700 font-bold h-[48px] px-6 rounded-xl border border-white/40 transition-all text-sm"
              >
                  Cancel
              </button>
@@ -478,4 +509,4 @@ const NewJobCardForm: React.FC<NewJobCardFormProps> = ({
   );
 };
 
-export default NewJobCardForm;
+export default EditJobCardForm;
