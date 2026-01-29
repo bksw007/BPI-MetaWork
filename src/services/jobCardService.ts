@@ -9,7 +9,8 @@ import {
   orderBy, 
   Timestamp, 
   runTransaction,
-  serverTimestamp
+  serverTimestamp,
+  deleteField
 } from 'firebase/firestore';
 import { db, storage } from '../config/firebase';
 import { JobCard, AuditLog, JobStatus, ProcessPhase, Attachment, Comment, AppUser } from '../types/jobCard';
@@ -27,11 +28,15 @@ const createAuditLog = async (
 ) => {
   try {
     const logRef = collection(db, COLLECTION, jobId, AUDIT_COLLECTION);
+    
+    // Sanitize details to remove undefined values
+    const sanitizedDetails = details ? JSON.parse(JSON.stringify(details)) : {};
+
     await addDoc(logRef, {
       action,
       performedBy,
       timestamp: serverTimestamp(),
-      ...details
+      ...sanitizedDetails
     });
   } catch (error) {
     console.error('Failed to create audit log', error);
@@ -117,9 +122,15 @@ export const updateJobCard = async (jobId: string, updates: Partial<JobCard>, us
     // if (updates.version && updates.version !== currentVersion) { throw "Conflict"; }
 
     const newVersion = currentVersion + 1;
+
+    // Fix for undefined currentPhase: Convert to deleteField()
+    let processedUpdates: any = { ...updates };
+    if (processedUpdates.status === 'Waiting' && processedUpdates.currentPhase === undefined) {
+        processedUpdates = { ...processedUpdates, currentPhase: deleteField() };
+    }
     
     transaction.update(jobRef, {
-      ...updates,
+      ...processedUpdates,
       version: newVersion,
       updatedAt: new Date().toISOString()
     });
@@ -131,9 +142,12 @@ export const updateJobCard = async (jobId: string, updates: Partial<JobCard>, us
 export const moveJobCard = async (jobId: string, newStatus: JobStatus, newPhase: ProcessPhase | undefined, userId: string) => {
   const jobRef = doc(db, COLLECTION, jobId);
   
+  // Fix for undefined currentPhase: Convert to deleteField() if undefined
+  const phaseUpdate = newPhase === undefined ? deleteField() : newPhase;
+
   await updateDoc(jobRef, {
     status: newStatus,
-    currentPhase: newPhase,
+    currentPhase: phaseUpdate,
     updatedAt: new Date().toISOString()
   });
 
@@ -185,16 +199,19 @@ export const reverseJobCard = async (job: JobCard, userId: string) => {
     nextPhase = undefined;
   }
 
+  // Fix for undefined currentPhase: Convert to deleteField()
+  const phaseUpdate = nextPhase === undefined ? deleteField() : nextPhase;
+
   await updateDoc(jobRef, {
     status: nextStatus,
-    currentPhase: nextPhase,
+    currentPhase: phaseUpdate,
     ...updates,
     updatedAt: new Date().toISOString()
   });
 
   await createAuditLog(job.id, 'move', userId, { 
-    oldValue: job.status,
-    newValue: nextStatus,
+    oldValue: { status: job.status, phase: job.currentPhase },
+    newValue: { status: nextStatus, phase: nextPhase },
     details: `Reversed to ${nextStatus}${nextPhase ? ` (${nextPhase})` : ''}`
   });
 };

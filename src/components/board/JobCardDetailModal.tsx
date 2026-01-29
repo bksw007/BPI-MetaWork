@@ -95,28 +95,39 @@ const JobCardDetailModal: React.FC<JobCardDetailModalProps> = ({
 
   const lastInteraction = useRef(0);
   const pendingSyncRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSyncedProgress = useRef<any>(null);
 
   // Sync from Firestore only when NOT actively dragging/syncing AND not recently interacted
   useEffect(() => {
     const timeSinceInteraction = Date.now() - lastInteraction.current;
     
-    // If syncing or interacted within last 2 seconds, ignore Firestore updates to prevent snap-back
-    if (isSyncing || timeSinceInteraction < 2000) {
+    // If syncing or interacted within last 5 seconds, ignore Firestore updates to prevent snap-back
+    if (isSyncing || timeSinceInteraction < 5000) {
+        console.log('⏸️ Skipping server sync - recently interacted or syncing');
         return;
     }
 
-    // Comparison check: Only update if server has NEWER or DIFFERENT progress 
-    // This prevents race conditions where an old prop value (e.g. 98%) overwrites local 100%
+    // Only update if this is actually NEW data from server (not the same as what we just synced)
+    const progressString = JSON.stringify(job.phaseProgress);
+    const lastSyncedString = JSON.stringify(lastSyncedProgress.current);
+    
+    if (progressString === lastSyncedString) {
+        console.log('⏭️ Skipping - same as last synced data');
+        return;
+    }
+
+    // Check if server has DIFFERENT progress (but favor local if we have pending changes)
     const shouldUpdate = !localProgress || 
         Object.keys(job.phaseProgress || {}).some(key => {
             const serverVal = job.phaseProgress?.[key as keyof typeof job.phaseProgress] || 0;
             const localVal = localProgress?.[key as keyof typeof localProgress] || 0;
-            return serverVal !== localVal; // Update if any phase is different
+            return serverVal > localVal; // Only update if server has HIGHER value
         });
 
     if (shouldUpdate) {
         console.log('🔄 Syncing from server:', job.phaseProgress);
         setLocalProgress(job.phaseProgress);
+        lastSyncedProgress.current = job.phaseProgress;
     }
   }, [job.phaseProgress, isSyncing]);
 
@@ -640,22 +651,77 @@ const JobCardDetailModal: React.FC<JobCardDetailModalProps> = ({
                       <div id="timeline" className="bg-white/40 backdrop-blur-md rounded-3xl p-6 border border-white/40 shadow-sm">
                           <SectionHeader title="Activity Timeline" icon={<History size={16}/>} />
                           <div className="pl-4 border-l-2 border-slate-200/60 space-y-8 py-2">
-                             {auditLogs.map(log => (
-                                 <div key={log.id} className="relative group">
-                                     <div className="absolute -left-[23px] top-1.5 w-3.5 h-3.5 rounded-full bg-white border-2 border-blue-400 shadow-sm group-hover:scale-125 transition-transform" />
-                                     <div>
-                                         <p className="text-sm font-bold text-slate-700">
-                                            {log.action === 'move' ? `Status: ${log.newValue?.status || '-'}` : log.action.toUpperCase()}
-                                         </p>
-                                         <p className="text-xs text-slate-500 mt-0.5">{log.details || 'Updated record'}</p>
-                                         <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-400 font-medium bg-slate-100/50 w-fit px-2 py-0.5 rounded-md">
-                                             <User size={10} /> {log.performedBy}
-                                             <span className="w-1 h-1 rounded-full bg-slate-300"/>
-                                             <span>{new Date(log.timestamp).toLocaleString()}</span>
+                             {auditLogs.map(log => {
+                                 // Helper to resolve nice descriptions
+                                 const getLogDisplay = (log: AuditLog) => {
+                                     const { action, newValue, details } = log;
+                                     let title = action.toUpperCase();
+                                     let desc = details || 'Updated record';
+                                     let icon = <History size={10} />;
+                                     let isHighlight = false;
+
+                                     if (action === 'move') {
+                                         const status = (newValue as any)?.status;
+                                         const phase = (newValue as any)?.phase;
+                                         if (status) {
+                                             title = `Moved to ${status}`;
+                                             if (phase) title += ` (${phase})`;
+                                             icon = <Truck size={10} />;
+                                             isHighlight = true;
+                                         } else if (details?.startsWith('Reversed')) {
+                                             title = details;
+                                             desc = 'Status Reverted';
+                                             icon = <RotateCcw size={10} />;
+                                         }
+                                     } else if (action === 'create') {
+                                         title = 'Job Created';
+                                         icon = <PlayCircle size={10} />;
+                                     } else if (action === 'comment') {
+                                         title = 'New Comment';
+                                         desc = (newValue as any) || details || '-';
+                                         icon = <MessageSquare size={10} />;
+                                     } else if (action === 'update') {
+                                         if ((newValue as any)?.phaseProgress) {
+                                             title = 'Progress Updated';
+                                             const progress = (newValue as any).phaseProgress;
+                                             // Find active phase
+                                             const activeKey = Object.keys(progress).find(k => progress[k] > 0 && progress[k] < 100) || 'Storage';
+                                             desc = `${activeKey.charAt(0).toUpperCase() + activeKey.slice(1)}: ${progress[activeKey] || 100}%`;
+                                             icon = <Box size={10} />;
+                                         } else if ((newValue as any)?.attachments) {
+                                            title = 'File Attached';
+                                            desc = details || 'Attachment added';
+                                            icon = <Paperclip size={10} />;
+                                         } else if (details?.includes('files')) {
+                                             title = 'File Update';
+                                             icon = <Paperclip size={10} />;
+                                         }
+                                     }
+
+                                     return { title, desc, icon, isHighlight };
+                                 };
+
+                                 const { title, desc, icon, isHighlight } = getLogDisplay(log);
+
+                                 return (
+                                     <div key={log.id} className="relative group">
+                                         <div className={`absolute -left-[23px] top-1.5 w-3.5 h-3.5 rounded-full border-2 shadow-sm group-hover:scale-125 transition-transform flex items-center justify-center ${isHighlight ? 'bg-blue-500 border-blue-600 text-white' : 'bg-white border-slate-300 text-slate-400'}`}>
+                                             {isHighlight && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                         </div>
+                                         <div>
+                                             <p className={`text-sm font-bold ${isHighlight ? 'text-blue-600' : 'text-slate-700'}`}>
+                                                 {title}
+                                             </p>
+                                             <p className="text-xs text-slate-500 mt-0.5 break-words line-clamp-2" title={desc}>{desc}</p>
+                                             <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-400 font-medium bg-slate-100/50 w-fit px-2 py-0.5 rounded-md">
+                                                 <User size={10} /> {log.performedBy}
+                                                 <span className="w-1 h-1 rounded-full bg-slate-300"/>
+                                                 <span>{new Date(log.timestamp).toLocaleString()}</span>
+                                             </div>
                                          </div>
                                      </div>
-                                 </div>
-                             ))}
+                                 );
+                             })}
                              {auditLogs.length === 0 && <p className="text-sm text-slate-400 italic">No history yet.</p>}
                           </div>
                       </div>
