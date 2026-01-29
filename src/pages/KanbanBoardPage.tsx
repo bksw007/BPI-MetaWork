@@ -9,12 +9,16 @@ import { JobCard } from '../types/jobCard';
 
 import { useAuth } from '../contexts/AuthContext';
 
+import { useSearchParams } from 'react-router-dom';
+
 const KanbanBoardPage: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const { user, userProfile } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   
-  // View State
-  const [viewMode, setViewMode] = useState<'kanban' | 'gantt'>('kanban');
+  // View State - Initialize from URL param or default to 'kanban'
+  const initialView = searchParams.get('view') === 'gantt' ? 'gantt' : 'kanban';
+  const [viewMode, setViewMode] = useState<'kanban' | 'gantt'>(initialView);
   const [jobs, setJobs] = useState<JobCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -65,7 +69,10 @@ const KanbanBoardPage: React.FC = () => {
       <UnifiedNavbar>
          <div className="flex items-center gap-1 mr-4">
             <button 
-                onClick={() => setViewMode('kanban')}
+                onClick={() => {
+                    setViewMode('kanban');
+                    setSearchParams({ view: 'kanban' });
+                }}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                     viewMode === 'kanban' 
                     ? 'bg-orange-50 text-orange-500' 
@@ -76,7 +83,10 @@ const KanbanBoardPage: React.FC = () => {
                 Kanban
             </button>
             <button 
-                onClick={() => setViewMode('gantt')}
+                onClick={() => {
+                    setViewMode('gantt');
+                    setSearchParams({ view: 'gantt' });
+                }}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                     viewMode === 'gantt' 
                     ? 'bg-orange-50 text-orange-500' 

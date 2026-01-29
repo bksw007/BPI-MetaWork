@@ -91,7 +91,7 @@ const ActivityReportPage: React.FC = () => {
                         Kanban
                     </a>
                      {/* For Timeline, we just link to SmartBoard for now, unless we implement query param routing */}
-                    <a href="/kanban" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all text-slate-900 hover:text-orange-500 hover:bg-orange-50">
+                    <a href="/kanban?view=gantt" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all text-slate-900 hover:text-orange-500 hover:bg-orange-50">
                         <CalendarRange className="w-4 h-4" />
                         Timeline
                     </a>
