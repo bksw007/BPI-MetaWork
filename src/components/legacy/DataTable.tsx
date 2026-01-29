@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { PackingRecord } from '../types';
+import { PackingRecord } from '@types';
 import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 
 interface DataTableProps {

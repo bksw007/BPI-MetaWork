@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Save, X, Info, ChevronDown, Sparkles, Plus } from 'lucide-react';
-import { AppUser, Assignee } from '../../types/jobCard';
-import { subscribeToUsers } from '../../services/jobCardService';
+import { AppUser, Assignee } from '@types/jobCard';
+import { subscribeToUsers } from '@services/jobCardService';
 
 interface NewJobCardFormProps {
   onSave: (record: any) => Promise<void> | void;

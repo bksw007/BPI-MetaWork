@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import UnifiedLoading from '../components/UnifiedLoading';
+import { useAuth } from '@contexts/AuthContext';
+import UnifiedLoading from '@components/UnifiedLoading';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();

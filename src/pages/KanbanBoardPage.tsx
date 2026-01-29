@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import UnifiedNavbar from '../components/UnifiedNavbar';
-import KanbanBoard from '../components/board/KanbanBoard';
-import GanttView from '../components/board/GanttView';
+import UnifiedNavbar from '@components/UnifiedNavbar';
+import KanbanBoard from '@components/board/KanbanBoard';
+import GanttView from '@components/board/GanttView';
 import { KanbanSquare, Plus, Sparkles, LayoutGrid, CalendarRange } from 'lucide-react';
-import NewJobCardForm from '../components/board/NewJobCardForm';
-import { createJobCard, subscribeToJobCards } from '../services/jobCardService';
-import { JobCard } from '../types/jobCard';
+import NewJobCardForm from '@components/board/NewJobCardForm';
+import { createJobCard, subscribeToJobCards } from '@services/jobCardService';
+import { JobCard } from '@types/jobCard';
 
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@contexts/AuthContext';
 
 import { useSearchParams } from 'react-router-dom';
 

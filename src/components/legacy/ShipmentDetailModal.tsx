@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PackingRecord, PACKAGE_COLUMNS } from '../types';
+import { PackingRecord, PACKAGE_COLUMNS } from '@types';
 import { 
   X, 
   MoreVertical, 

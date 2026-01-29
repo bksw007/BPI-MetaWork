@@ -20,7 +20,34 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": [
-        "./*"
+        "./src/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@pages/*": [
+        "./src/pages/*"
+      ],
+      "@services/*": [
+        "./src/services/*"
+      ],
+      "@types": [
+        "./src/types/index"
+      ],
+      "@types/*": [
+        "./src/types/*"
+      ],
+      "@contexts/*": [
+        "./src/contexts/*"
+      ],
+      "@config/*": [
+        "./src/config/*"
+      ],
+      "@utils": [
+        "./src/utils/index"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
       ]
     },
     "allowImportingTsExtensions": true,

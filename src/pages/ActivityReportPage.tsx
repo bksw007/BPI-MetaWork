@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import UnifiedNavbar from '../components/UnifiedNavbar';
-import { useAuth } from '../contexts/AuthContext';
-import { subscribeToJobCards } from '../services/jobCardService';
-import { JobCard } from '../types/jobCard';
+import UnifiedNavbar from '@components/UnifiedNavbar';
+import { useAuth } from '@contexts/AuthContext';
+import { subscribeToJobCards } from '@services/jobCardService';
+import { JobCard } from '@types/jobCard';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer, Cell 
 } from 'recharts';

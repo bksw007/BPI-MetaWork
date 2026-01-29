@@ -4,7 +4,7 @@ import {
   Loader2, Upload, Trash2, RotateCcw, CheckCircle2, AlertTriangle, 
   PlayCircle, MoreHorizontal, Calendar, Box, Truck, MapPin
 } from 'lucide-react';
-import { JobCard, JobStatus, Comment, Attachment, AuditLog, ProcessPhase } from '../../types/jobCard';
+import { JobCard, JobStatus, Comment, Attachment, AuditLog, ProcessPhase } from '@types/jobCard';
 import { 
   addComment, 
   subscribeToComments, 
@@ -14,7 +14,7 @@ import {
   updateJobCard,
   reverseJobCard,
   deleteJobCard
-} from '../../services/jobCardService';
+} from '@services/jobCardService';
 import EditJobCardForm from './EditJobCardForm';
 import { SuccessAnimation } from '../common/SuccessAnimation';
 import { ConfirmDialog } from '../common/ConfirmDialog';

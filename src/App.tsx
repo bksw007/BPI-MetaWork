@@ -1,18 +1,18 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './src/contexts/AuthContext';
-import { ProtectedRoute, PublicRoute } from './src/components/ProtectedRoute';
+import { AuthProvider } from '@contexts/AuthContext';
+import { ProtectedRoute, PublicRoute } from '@components/ProtectedRoute';
 
 // Pages
-import LoginPage from './src/pages/LoginPage';
-import HomePage from './src/pages/HomePage';
-import PendingPage from './src/pages/PendingPage';
-import UserProfilePage from './src/pages/UserProfilePage';
-import AdminProfilePage from './src/pages/AdminProfilePage';
-import DashboardPage from './src/pages/DashboardPage';
-import KanbanBoardPage from './src/pages/KanbanBoardPage';
-import ActivityReportPage from './src/pages/ActivityReportPage';
-import FirebaseTest from './src/components/FirebaseTest';
+import LoginPage from '@pages/LoginPage';
+import HomePage from '@pages/HomePage';
+import PendingPage from '@pages/PendingPage';
+import UserProfilePage from '@pages/UserProfilePage';
+import AdminProfilePage from '@pages/AdminProfilePage';
+import DashboardPage from '@pages/DashboardPage';
+import KanbanBoardPage from '@pages/KanbanBoardPage';
+import ActivityReportPage from '@pages/ActivityReportPage';
+import FirebaseTest from '@components/FirebaseTest';
 
 const App: React.FC = () => {
   return (

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import UnifiedNavbar from '../components/UnifiedNavbar';
+import { useAuth } from '@contexts/AuthContext';
+import UnifiedNavbar from '@components/UnifiedNavbar';
 import { 
   Home, LogOut, User, Mail, Shield, Camera, 
   Check, X, Key, Calendar, Clock, Edit3, ZoomIn, ZoomOut

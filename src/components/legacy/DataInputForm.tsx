@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { PackingRecord, PACKAGE_COLUMNS } from '../types';
+import { PackingRecord, PACKAGE_COLUMNS } from '@types';
 import { Save, ArrowLeft, CheckCircle2, Package, Info, ChevronRight, Calendar as CalendarIcon, ChevronDown, Table } from 'lucide-react';
 
 interface DataInputFormProps {

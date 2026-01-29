@@ -12,8 +12,8 @@ import {
   QuerySnapshot,
   DocumentData
 } from 'firebase/firestore';
-import { db } from '../config/firebase';
-import { PackingRecord, PACKAGE_COLUMNS } from '../../types';
+import { db } from '@config/firebase';
+import { PackingRecord, PACKAGE_COLUMNS } from '@types';
 
 const COLLECTION_NAME = 'packingRecords';
 

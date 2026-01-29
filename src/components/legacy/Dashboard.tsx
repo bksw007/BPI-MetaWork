@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { PackingRecord, PACKAGE_GROUPS } from '../types';
-import { aggregateData } from '../utils';
+import { PackingRecord, PACKAGE_GROUPS } from '@types';
+import { aggregateData } from '@utils';
 import StatsCard from './StatsCard';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 

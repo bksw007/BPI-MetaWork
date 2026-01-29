@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { UploadCloud, FileSpreadsheet, X } from 'lucide-react';
-import { parseCSV } from '../utils';
-import { PackingRecord } from '../types';
+import { parseCSV } from '@utils';
+import { PackingRecord } from '@types';
 
 interface DataUploaderProps {
   onDataLoaded: (data: PackingRecord[]) => void;

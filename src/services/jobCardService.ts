@@ -12,8 +12,8 @@ import {
   serverTimestamp,
   deleteField
 } from 'firebase/firestore';
-import { db, storage } from '../config/firebase';
-import { JobCard, AuditLog, JobStatus, ProcessPhase, Attachment, Comment, AppUser } from '../types/jobCard';
+import { db, storage } from '@config/firebase';
+import { JobCard, AuditLog, JobStatus, ProcessPhase, Attachment, Comment, AppUser } from '@types/jobCard';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 const COLLECTION = 'jobCards';

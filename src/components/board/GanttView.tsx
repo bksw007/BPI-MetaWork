@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { JobCard } from '../../types/jobCard';
+import { JobCard } from '@types/jobCard';
 import { Calendar, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 interface GanttViewProps {

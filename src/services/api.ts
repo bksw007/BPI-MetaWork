@@ -1,5 +1,5 @@
-import { PackingRecord, PACKAGE_COLUMNS } from '../../types';
-import { parseDisplayDate, formatDisplayDate } from '../../utils';
+import { PackingRecord, PACKAGE_COLUMNS } from '@types';
+import { parseDisplayDate, formatDisplayDate } from '@utils';
 
 // This URL should be provided by the user after deployment
 // For now, we'll check for an env var or default to empty to prompt them

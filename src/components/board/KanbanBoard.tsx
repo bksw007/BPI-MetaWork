@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { JobCard, JobStatus, ProcessPhase } from '../../types/jobCard';
+import { JobCard, JobStatus, ProcessPhase } from '@types/jobCard';
 import KanbanColumn from './KanbanColumn';
 import JobCardDetailModal from './JobCardDetailModal';
-import { subscribeToJobCards, moveJobCard } from '../../services/jobCardService';
+import { subscribeToJobCards, moveJobCard } from '@services/jobCardService';
 import { Loader2, LayoutGrid, PlayCircle, Clock, AlertTriangle, Calendar } from 'lucide-react';
 
 import { useAuth } from '../../contexts/AuthContext';

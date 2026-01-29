@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { PackingRecord } from '../../types';
-import UnifiedNavbar from '../components/UnifiedNavbar';
-import Dashboard from '../../components/Dashboard';
-import DataTable from '../../components/DataTable';
-import DataInputForm from '../../components/DataInputForm';
-import SuccessModal from '../../components/SuccessModal';
-import UnifiedLoading from '../components/UnifiedLoading';
+import { PackingRecord } from '@types';
+import UnifiedNavbar from '@components/UnifiedNavbar';
+import Dashboard from '@components/legacy/Dashboard';
+import DataTable from '@components/legacy/DataTable';
+import DataInputForm from '@components/legacy/DataInputForm';
+import SuccessModal from '@components/legacy/SuccessModal';
+import UnifiedLoading from '@components/UnifiedLoading';
 import { 
   LayoutDashboard, 
   Table, 
@@ -20,10 +20,10 @@ import {
   ChevronDown,
   Printer 
 } from 'lucide-react';
-import { getPackingRecords, addPackingRecord, updatePackingRecord, deletePackingRecord, subscribeToPackingRecords } from '../services/firebaseService';
-import ShipmentDetailModal from '../../components/ShipmentDetailModal';
+import { getPackingRecords, addPackingRecord, updatePackingRecord, deletePackingRecord, subscribeToPackingRecords } from '@services/firebaseService';
+import ShipmentDetailModal from '@components/legacy/ShipmentDetailModal';
 import { useReactToPrint } from 'react-to-print';
-import { PackingReport } from '../../components/PackingReport';
+import { PackingReport } from '@components/legacy/PackingReport';
 
 const DashboardPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

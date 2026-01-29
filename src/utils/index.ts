@@ -1,4 +1,4 @@
-import { PackingRecord, PACKAGE_COLUMNS, PACKAGE_GROUPS, PACKAGE_RATIOS } from './types';
+import { PackingRecord, PACKAGE_COLUMNS, PACKAGE_GROUPS, PACKAGE_RATIOS } from '@types';
 
 // Helper: Convert YYYY-MM-DD to DD/MM/YYYY
 export const formatDisplayDate = (isoDate: string): string => {

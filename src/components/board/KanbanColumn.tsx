@@ -1,5 +1,5 @@
 import React from 'react';
-import { JobCard, JobStatus } from '../../types/jobCard';
+import { JobCard, JobStatus } from '@types/jobCard';
 import JobCardItem from './JobCardItem';
 import { Plus } from 'lucide-react';
 

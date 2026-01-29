@@ -1,6 +1,6 @@
 import React from 'react';
 import { Clock, MessageSquare, Paperclip, AlertCircle, MoreHorizontal } from 'lucide-react';
-import { JobCard, JobStatus, ProcessPhase } from '../../types/jobCard';
+import { JobCard, JobStatus, ProcessPhase } from '@types/jobCard';
 
 interface JobCardItemProps {
   job: JobCard;

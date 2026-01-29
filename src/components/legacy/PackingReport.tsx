@@ -1,10 +1,10 @@
 import React from 'react';
-import { PackingRecord } from '../types';
+import { PackingRecord } from '@types';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, 
   LineChart, Line, PieChart, Pie, Cell 
 } from 'recharts';
-import { aggregateData } from '../utils';
+import { aggregateData } from '@utils';
 
 interface PackingReportProps {
   data: PackingRecord[];

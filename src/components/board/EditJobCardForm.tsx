@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Save, X, Info, ChevronDown, Sparkles, Plus, Trash2 } from 'lucide-react';
-import { JobCard, AppUser, Assignee } from '../../types/jobCard';
-import { subscribeToUsers } from '../../services/jobCardService';
+import { JobCard, AppUser, Assignee } from '@types/jobCard';
+import { subscribeToUsers } from '@services/jobCardService';
 
 interface EditJobCardFormProps {
   job: JobCard;

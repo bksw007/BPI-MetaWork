@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@contexts/AuthContext';
 import { 
   Home, LogOut, User, Mail, Shield, Camera, 
   Check, X, Trash2, UserCog, Search,
   ChevronDown, Key, ZoomIn, ZoomOut, Calendar, Clock, AlertTriangle
 } from 'lucide-react';
-import UnifiedNavbar from '../components/UnifiedNavbar';
+import UnifiedNavbar from '@components/UnifiedNavbar';
 import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, Timestamp, query, orderBy } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
