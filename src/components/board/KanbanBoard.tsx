@@ -187,8 +187,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalJobs, externalIsLoadi
             {/* Allocated */}
             <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
                 <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-white/80 text-blue-600 shadow-sm">
-                        <LayoutGrid size={16} />
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-xl flex items-center justify-center shadow-md">
+                        <LayoutGrid size={20} />
                     </div>
                     <span className="text-sm font-bold text-slate-700">Allocated</span>
                 </div>
@@ -198,8 +198,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalJobs, externalIsLoadi
             {/* On Processing */}
             <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
                 <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-white/80 text-indigo-600 shadow-sm">
-                        <PlayCircle size={16} />
+                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-indigo-600 text-white rounded-xl flex items-center justify-center shadow-md">
+                        <PlayCircle size={20} />
                     </div>
                     <span className="text-sm font-bold text-slate-700">On Process</span>
                 </div>
@@ -209,8 +209,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalJobs, externalIsLoadi
             {/* Waiting JS */}
             <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
                 <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-white/80 text-amber-600 shadow-sm">
-                        <Clock size={16} />
+                    <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 text-white rounded-xl flex items-center justify-center shadow-md">
+                        <Clock size={20} />
                     </div>
                     <span className="text-sm font-bold text-slate-700">Waiting JS</span>
                 </div>
@@ -220,8 +220,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalJobs, externalIsLoadi
             {/* High Priority */}
             <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
                 <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-white/80 text-red-600 shadow-sm">
-                        <AlertTriangle size={16} />
+                    <div className="w-10 h-10 bg-gradient-to-br from-red-400 to-red-600 text-white rounded-xl flex items-center justify-center shadow-md">
+                        <AlertTriangle size={20} />
                     </div>
                     <span className="text-sm font-bold text-slate-700">High Priority</span>
                 </div>
@@ -231,8 +231,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalJobs, externalIsLoadi
             {/* Due Today */}
             <div className="px-3 py-2 flex items-center justify-between bg-white/40 border border-white/30 shadow-sm backdrop-blur-2xl rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
                 <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-white/80 text-orange-600 shadow-sm">
-                        <Calendar size={16} />
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 text-white rounded-xl flex items-center justify-center shadow-md">
+                        <Calendar size={20} />
                     </div>
                     <span className="text-sm font-bold text-slate-700">Due Today</span>
                 </div>

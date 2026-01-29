@@ -83,7 +83,7 @@ const ActivityReportPage: React.FC = () => {
     };
 
     return (
-        <div className="h-screen flex flex-col bg-slate-50 overflow-hidden font-prompt">
+        <div className="h-screen flex flex-col bg-gradient-kanban overflow-hidden font-prompt">
             <UnifiedNavbar>
                 <div className="flex items-center gap-1 mr-4">
                     <a href="/kanban" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all text-slate-900 hover:text-orange-500 hover:bg-orange-50">
@@ -108,26 +108,26 @@ const ActivityReportPage: React.FC = () => {
                     {/* Header & Filter */}
                     <div className="flex flex-col md:flex-row justify-between items-end gap-4">
                         <div>
-                            <h1 className="text-3xl font-black text-slate-800">Monthly Performance</h1>
+                            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">Monthly Performance</h1>
                             <p className="text-slate-500 mt-1">Overview of job completion and efficiency.</p>
                         </div>
                         
-                        <div className="flex items-center gap-4 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex items-center gap-4 bg-white/40 backdrop-blur-md p-1.5 rounded-2xl shadow-sm border border-white/50 transition-all hover:shadow-md hover:bg-white/50">
                             <button 
                                 onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}
-                                className="p-2 hover:bg-slate-50 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
+                                className="p-2 hover:bg-white/50 rounded-xl text-slate-500 hover:text-slate-700 transition-all active:scale-95"
                             >
                                 <ChevronLeft size={20} />
                             </button>
                             <div className="text-center min-w-[140px]">
-                                <span className="block text-sm font-bold text-slate-400 uppercase tracking-wider">Month</span>
-                                <span className="block text-lg font-black text-slate-800 leading-none">
+                                <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Month</span>
+                                <span className="block text-base font-bold text-slate-800 leading-none mt-0.5">
                                     {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
                                 </span>
                             </div>
                             <button 
                                 onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}
-                                className="p-2 hover:bg-slate-50 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
+                                className="p-2 hover:bg-white/50 rounded-xl text-slate-500 hover:text-slate-700 transition-all active:scale-95"
                             >
                                 <ChevronRight size={20} />
                             </button>
@@ -135,7 +135,7 @@ const ActivityReportPage: React.FC = () => {
 
                         <button 
                             onClick={handleExport}
-                            className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-xl font-bold shadow-lg shadow-green-200 hover:bg-green-600 transition-all active:scale-95"
+                            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-teal-500 text-white rounded-xl font-semibold shadow-lg shadow-teal-200/50 hover:shadow-teal-300/50 hover:-translate-y-0.5 transition-all active:scale-95"
                         >
                             <Download size={18} /> Export Excel
                         </button>
@@ -146,51 +146,51 @@ const ActivityReportPage: React.FC = () => {
                         <StatsCard 
                             title="Total Jobs" 
                             value={stats.total} 
-                            icon={<FileText size={20}/>} 
-                            color="bg-blue-500" 
+                            icon={<FileText size={18}/>} 
+                            color="from-blue-400 to-blue-500" 
                         />
                         <StatsCard 
                             title="Completed" 
                             value={stats.completed} 
-                            icon={<CheckCircle size={20}/>} 
-                            color="bg-green-500" 
+                            icon={<CheckCircle size={18}/>} 
+                            color="from-green-400 to-green-500" 
                         />
                         <StatsCard 
                             title="Pending" 
                             value={stats.pending} 
-                            icon={<Clock size={20}/>} 
-                            color="bg-orange-400" 
+                            icon={<Clock size={18}/>} 
+                            color="from-orange-400 to-orange-500" 
                         />
                         <StatsCard 
                             title="On-Time Rate" 
                             value={`${stats.onTimeRate}%`} 
-                            icon={<TrendingUp size={20}/>} 
-                            color="bg-purple-500" 
+                            icon={<TrendingUp size={18}/>} 
+                            color="from-purple-400 to-purple-500" 
                         />
                     </div>
 
                     {/* Charts Section */}
                     {/* Placeholder for now - can be expanded */}
-                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+                    <div className="bg-white/40 backdrop-blur-md rounded-3xl p-8 shadow-sm border border-white/50 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                         <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
                             <BarChart className="text-slate-400" size={20} width={20} height={20}/> Daily Job Completion
                         </h3>
-                        <div className="h-[300px] w-full flex items-center justify-center bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 text-slate-400 font-bold">
-                            Chart Visualization Coming Soon
+                        <div className="h-[300px] w-full flex items-center justify-center bg-white/30 rounded-2xl border-2 border-dashed border-slate-200/50 text-slate-400 font-semibold group hover:border-blue-300/50 transition-colors">
+                            <span className="group-hover:scale-105 transition-transform duration-300">Chart Visualization Coming Soon</span>
                         </div>
                     </div>
 
                     {/* Detailed List */}
-                    <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100">
-                        <div className="p-6 border-b border-slate-50 flex justify-between items-center">
+                    <div className="bg-white/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-sm border border-white/50 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                        <div className="p-6 border-b border-white/20 flex justify-between items-center">
                             <h3 className="text-lg font-bold text-slate-800">Job Detail List</h3>
-                            <span className="text-xs font-bold bg-slate-100 text-slate-500 px-3 py-1 rounded-full">
+                            <span className="text-xs font-semibold bg-white/50 text-slate-600 px-3 py-1 rounded-full border border-white/50 shadow-sm">
                                 {filteredJobs.length} records
                             </span>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                                <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-xs">
+                                <thead className="bg-white/50 text-slate-500 font-semibold uppercase text-xs border-b border-white/30">
                                     <tr>
                                         <th className="px-6 py-4 rounded-tl-2xl">Job ID</th>
                                         <th className="px-6 py-4">Customer</th>
@@ -200,29 +200,29 @@ const ActivityReportPage: React.FC = () => {
                                         <th className="px-6 py-4 text-right rounded-tr-2xl">Due Date</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-50">
+                                <tbody className="divide-y divide-white/20">
                                     {filteredJobs.length > 0 ? filteredJobs.map(job => (
-                                        <tr key={job.id} className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="px-6 py-4 font-mono text-slate-400">#{job.id.slice(-6)}</td>
-                                            <td className="px-6 py-4 font-bold text-slate-700">{job.customer}</td>
-                                            <td className="px-6 py-4 text-slate-600">{job.product}</td>
-                                            <td className="px-6 py-4 text-center font-bold text-slate-800">{job.jobQty}</td>
-                                            <td className="px-6 py-4 text-center">
-                                                <span className={`px-2 py-1 rounded-md text-[10px] uppercase font-bold ${
-                                                    job.status === 'Complete' ? 'bg-green-100 text-green-600' :
-                                                    job.status === 'Report' ? 'bg-purple-100 text-purple-600' :
-                                                    'bg-slate-100 text-slate-500'
+                                        <tr key={job.id} className="hover:bg-white/60 transition-colors border-b border-white/20 last:border-0 group cursor-default">
+                                            <td className="px-6 py-3.5 font-mono text-slate-500 group-hover:text-blue-600 transition-colors">#{job.id.slice(-6)}</td>
+                                            <td className="px-6 py-3.5 font-semibold text-slate-700">{job.customer}</td>
+                                            <td className="px-6 py-3.5 text-slate-600">{job.product}</td>
+                                            <td className="px-6 py-3.5 text-center font-bold text-slate-800">{job.jobQty}</td>
+                                            <td className="px-6 py-3.5 text-center">
+                                                <span className={`px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold shadow-sm ${
+                                                    job.status === 'Complete' ? 'bg-green-100/80 text-green-700 border border-green-200' :
+                                                    job.status === 'Report' ? 'bg-purple-100/80 text-purple-700 border border-purple-200' :
+                                                    'bg-slate-100/80 text-slate-600 border border-slate-200'
                                                 }`}>
                                                     {job.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-right font-mono text-slate-500">
+                                            <td className="px-6 py-3.5 text-right font-mono text-slate-500">
                                                 {new Date(job.dueDate).toLocaleDateString()}
                                             </td>
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-12 text-center text-slate-400 italic">
+                                            <td colSpan={6} className="px-6 py-12 text-center text-slate-400 italic font-medium">
                                                 No jobs found for this period.
                                             </td>
                                         </tr>
@@ -238,14 +238,14 @@ const ActivityReportPage: React.FC = () => {
 };
 
 const StatsCard = ({ title, value, icon, color }: any) => (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
-        <div className={`w-12 h-12 ${color} text-white rounded-xl flex items-center justify-center shadow-md`}>
-            {icon}
+    <div className="bg-white/40 backdrop-blur-md px-5 py-4 rounded-2xl shadow-sm border border-white/50 flex items-center justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 group">
+        <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 bg-gradient-to-br ${color} text-white rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                {icon}
+            </div>
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">{title}</p>
         </div>
-        <div>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">{title}</p>
-            <p className="text-2xl font-black text-slate-800">{value}</p>
-        </div>
+        <p className="text-2xl font-black text-slate-800">{value}</p>
     </div>
 );
 

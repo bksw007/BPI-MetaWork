@@ -33,8 +33,8 @@ const GanttView: React.FC<GanttViewProps> = ({ jobs, isLoading }) => {
         {/* Toolbar */}
         <div className="flex items-center justify-between p-6 border-b border-white/20">
             <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/60 rounded-xl shadow-sm text-purple-600">
-                    <Calendar size={20} />
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-xl flex items-center justify-center shadow-md">
+                    <Calendar size={24} />
                 </div>
                 <div>
                     <h3 className="text-xl font-black text-slate-800">Timeline</h3>
@@ -68,8 +68,8 @@ const GanttView: React.FC<GanttViewProps> = ({ jobs, isLoading }) => {
         <div className="flex-1 overflow-auto relative">
              <div className="min-w-[1200px]">
                  {/* Header Row */}
-                 <div className="grid grid-cols-[300px_1fr] sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-white/30">
-                     <div className="p-4 font-bold text-slate-600 text-sm border-r border-white/30 pl-8">
+                 <div className="grid grid-cols-[300px_1fr] sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-white/30 w-fit min-w-full">
+                     <div className="p-4 font-bold text-slate-600 text-sm border-r border-white/30 pl-8 sticky left-0 z-20 bg-white/90 backdrop-blur-md shadow-[4px_0_24px_-4px_rgba(0,0,0,0.1)]">
                          Job Details
                      </div>
                      <div className="flex">
@@ -83,11 +83,11 @@ const GanttView: React.FC<GanttViewProps> = ({ jobs, isLoading }) => {
                  </div>
 
                  {/* Job Rows */}
-                 <div className="divide-y divide-slate-100/50">
+                 <div className="divide-y divide-slate-100/50 w-fit min-w-full">
                      {jobs.map(job => (
-                         <div key={job.id} className="grid grid-cols-[300px_1fr] group hover:bg-white/40 transition-colors">
+                         <div key={job.id} className="grid grid-cols-[300px_1fr] group hover:bg-white/40 transition-colors w-full">
                              {/* Left: Job Info */}
-                             <div className="p-4 border-r border-white/30 pl-8">
+                             <div className="p-4 border-r border-white/30 pl-8 sticky left-0 z-10 bg-white/60 backdrop-blur-md group-hover:bg-white/80 transition-colors shadow-[4px_0_16px_-4px_rgba(0,0,0,0.05)]">
                                  <div className="font-bold text-slate-800 truncate" title={job.title}>{job.title}</div>
                                  <div className="flex items-center gap-2 mt-1">
                                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
